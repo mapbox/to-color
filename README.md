@@ -1,9 +1,14 @@
-    npm install to-color
-
-
 ## `toColor`
 
 [![build status](https://secure.travis-ci.org/mapbox/to-color.svg)](http://travis-ci.org/mapbox/to-color)
+
+### install
+
+    npm install to-color
+
+## API
+
+`toColor`
 
 Given an arbitrary string, create a rgba color
 of a specified opacity to identify it visually.
