@@ -1,6 +1,6 @@
 {
   "name": "to-color",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "convert an arbitrary string into an identifying color",
   "main": "index.js",
   "scripts": {
