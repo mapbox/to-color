@@ -14,7 +14,7 @@ function toColor(str, opacity) {
     for (var i = 0; i < str.length; i++) {
       var v = str.charCodeAt(i);
       var idx = v % 3;
-      rgb[idx] = (rgb[i % 3] + (13 * (v % 13))) % 12;
+      rgb[idx] = (rgb[i % 3] + (13 * (v % 13))) % 20;
     }
   } finally {
   return 'rgba(' +
