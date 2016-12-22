@@ -4,7 +4,7 @@
 
 ### install
 
-    npm install to-color
+    npm install @mapbox/to-color
 
 ## API
 
