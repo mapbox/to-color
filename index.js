@@ -1,3 +1,6 @@
+const colorRanges = [];
+let seed;
+
 const colorDictionary = [
   ['monochrome', null, [
     [0, 0],
@@ -94,30 +97,13 @@ const colorDictionary = [
   return memo;
 }, {});
 
-const colorRanges = [];
-let seed;
-
-const toColor = (str, options) => {
-  options = options || {};
-
-  if (typeof str === 'string') {
-    seed = stringToInteger(str);
-  } else {
-    seed = str;
-  }
-
-  const h = pickHue(options);
-  const s = pickSaturation(h);
-  const b = pickBrightness(h, s);
-  return HSVtoHSL([h, s, b]);
-};
-
 function pickHue(options) {
   let hueRange;
   let hue;
 
   if (colorRanges.length > 0) {
-    hueRange = getRealHueRange(options.hue);
+    // hueRange = getRealHueRange(options.hue);
+    hueRange = [0, 360];
 
     hue = randomWithin(hueRange);
 
@@ -159,7 +145,7 @@ function pickHue(options) {
 }
 
 function pickSaturation(hue) {
-  const saturationRange = getSaturationRange(hue);
+  const { saturationRange } = getColorInfo(hue);
   const sMin = saturationRange[0];
   const sMax = saturationRange[1];
   return randomWithin([sMin, sMax]);
@@ -172,28 +158,20 @@ function pickBrightness(H, S) {
 }
 
 function getMinimumBrightness(H, S) {
-  var lowerBounds = getColorInfo(H).lowerBounds;
-
-  for (var i = 0; i < lowerBounds.length - 1; i++) {
-    var s1 = lowerBounds[i][0],
-      v1 = lowerBounds[i][1];
-
-    var s2 = lowerBounds[i + 1][0],
-      v2 = lowerBounds[i + 1][1];
-
+  const lowerBounds = getColorInfo(H).lowerBounds;
+  for (let i = 0; i < lowerBounds.length - 1; i++) {
+    const s1 = lowerBounds[i][0];
+    const v1 = lowerBounds[i][1];
+    const s2 = lowerBounds[i + 1][0];
+    const v2 = lowerBounds[i + 1][1];
     if (S >= s1 && S <= s2) {
-      var m = (v2 - v1) / (s2 - s1),
-        b = v1 - m * s1;
-
+      const m = (v2 - v1) / (s2 - s1);
+      const b = v1 - m * s1;
       return m * S + b;
     }
   }
 
   return 0;
-}
-
-function getSaturationRange(hue) {
-  return getColorInfo(hue).saturationRange;
 }
 
 function getColorInfo(hue) {
@@ -224,6 +202,8 @@ function randomWithin(range) {
   return Math.floor(min + rnd * (max - min));
 }
 
+const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+
 function HSVtoHSL(hsv) {
   const h = hsv[0];
   const s = hsv[1] / 100;
@@ -232,7 +212,7 @@ function HSVtoHSL(hsv) {
   return [
     h,
     Math.round(((s * v) / (k < 1 ? k : 2 - k)) * 10000) / 100,
-    (k / 2) * 100
+    round((k / 2) * 100)
   ];
 }
 
@@ -245,6 +225,7 @@ function stringToInteger(string) {
   return total;
 }
 
+// TODO something needs to be fixed here?
 // get The range of given hue when options.count!=0
 function getRealHueRange(colorHue) {
   if (!isNaN(colorHue)) {
@@ -256,6 +237,39 @@ function getRealHueRange(colorHue) {
   }
 }
 
+function toColor(str, options) {
+  options = options || {};
+  if (typeof str === 'string') {
+    seed = stringToInteger(str);
+  } else {
+    seed = str;
+  }
+
+  // Check if we need to generate multiple colors
+  if (options.count !== null && options.count !== undefined) {
+
+    const totalColors = options.count;
+    const colors = [];
+
+    // Value false at index i means the range i is not taken yet.
+    for (let i = 0; i < options.count; i++) {
+      colorRanges.push(false)
+    }
+
+    while (totalColors > colors.length) {
+      colors.push(toColor(str));
+    }
+
+    return colors;
+  }
+
+  const h = pickHue(options);
+  const s = pickSaturation(h);
+  const b = pickBrightness(h, s);
+  return HSVtoHSL([h, s, b]);
+};
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = toColor;
 }
+

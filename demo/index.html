@@ -13,23 +13,42 @@
     <div id="swatches" class="grid grid--gut12 txt-mono"></div>
   </div>
   <script>
+    const toHSLString = (hsl) => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
     const swatches = document.getElementById('swatches');
-    ['penny', 'steve'].forEach(swatch => {
-      const s = toColor(swatch);
+    ['penny', 'deli', ['cyrus', 'penelope', 'steve', 'mouse']].forEach(swatch => {
       const container = document.createElement('div');
-      container.classList = 'col col--6'; 
-
-      const swatchContainer = document.createElement('div');
-      swatchContainer.classList = 'round-t h120 px12 py12';
-      swatchContainer.textContent = swatchContainer.style.backgroundColor = `hsl(${s[0]}, ${s[1]}%, ${s[2]}%)`;
-
       const swatchSnippet = document.createElement('div');
       swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b';
-      swatchSnippet.textContent = `toColor('${swatch}');`;
+      const swatchContainer = document.createElement('div');
+      swatchContainer.classList = 'round-t h120 txt-xs flex-parent scroll-hidden';
+
+      if (Array.isArray(swatch)) {
+        const s = toColor(swatch[0], { count: swatch.length});
+        container.classList = 'col col--6 mb12'; 
+
+        s.forEach(c => {
+          const swatchContainerItem = document.createElement('div');
+          swatchContainerItem.classList = 'px12 py12 flex-child flex-child--grow h120';
+          swatchContainerItem.textContent = swatchContainerItem.style.backgroundColor = toHSLString(c);
+          swatchContainer.appendChild(swatchContainerItem);
+        });
+
+        let textContent = '';
+        swatch.forEach((c, i) => textContent += `${i === 0 ? '' : ', '}'${c}'`)
+        swatchSnippet.textContent = `toColor([${textContent}]);`;
+
+      } else {
+        const s = toColor(swatch);
+        container.classList = 'col col--3 mb12'; 
+        swatchContainer.classList.add('px12', 'py12');
+        swatchContainer.textContent = swatchContainer.style.backgroundColor = toHSLString(s);
+        swatchSnippet.textContent = `toColor('${swatch}');`;
+      }
 
       container.appendChild(swatchContainer);
       container.appendChild(swatchSnippet);
       swatches.appendChild(container); 
+              
     });
   </script>
 </body>
