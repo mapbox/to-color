@@ -1,13 +1,99 @@
+const colorDictionary = [
+  ['monochrome', null, [
+    [0, 0],
+    [100, 0]
+  ]],
+  ['red', [-26, 18], [
+    [20, 100],
+    [30, 92],
+    [40, 89],
+    [50, 85],
+    [60, 78],
+    [70, 70],
+    [80, 60],
+    [90, 55],
+    [100, 50]
+  ]],
+  ['orange', [18, 46], [
+    [20, 100],
+    [30, 93],
+    [40, 88],
+    [50, 86],
+    [60, 85],
+    [70, 70],
+    [100, 70]
+  ]],
+  ['yellow', [46, 62], [
+    [25, 100],
+    [40, 94],
+    [50, 89],
+    [60, 86],
+    [70, 84],
+    [80, 82],
+    [90, 80],
+    [100, 75]
+  ]],
+  ['green', [62, 178], [
+    [30, 100],
+    [40, 90],
+    [50, 85],
+    [60, 81],
+    [70, 74],
+    [80, 64],
+    [90, 50],
+    [100, 40]
+  ]],
+  ['blue', [178, 257], [
+    [20, 100],
+    [30, 86],
+    [40, 80],
+    [50, 74],
+    [60, 60],
+    [70, 52],
+    [80, 44],
+    [90, 39],
+    [100, 35]
+  ]],
+  ['purple', [257, 282], [
+    [20, 100],
+    [30, 87],
+    [40, 79],
+    [50, 70],
+    [60, 65],
+    [70, 59],
+    [80, 52],
+    [90, 45],
+    [100, 42]
+  ]],
+  ['pink', [282, 334], [
+    [20, 100],
+    [30, 90],
+    [40, 86],
+    [60, 84],
+    [80, 80],
+    [90, 75],
+    [100, 73]
+  ]]
+].reduce((memo, dict) => {
+  const name = dict[0];
+  const hueRange = dict[1];
+  const lowerBounds = dict[2];
 
-// TODO Instead of passing `known` pass an array of strings? 
+  const sMin = lowerBounds[0][0];
+  const sMax = lowerBounds[lowerBounds.length - 1][0];
+  const bMin = lowerBounds[lowerBounds.length - 1][1];
+  const bMax = lowerBounds[0][1];
 
+  memo[name] = {
+    hueRange,
+    lowerBounds,
+    saturationRange: [sMin, sMax],
+    brightnessRange: [bMin, bMax]
+  };
 
-const colorDictionary = {};
+  return memo;
+}, {});
 
-// Populate the color dictionary
-loadColorBounds();
-
-// TODO use this to push known color values into.
 const colorRanges = [];
 let seed;
 
@@ -20,17 +106,10 @@ const toColor = (str, options) => {
     seed = str;
   }
 
-  // First we pick a hue (H)
-  const H = pickHue(options);
-
-  // Then use H to determine saturation (S)
-  const S = pickSaturation(H);
-
-  // Then use S and H to determine brightness (B).
-  const B = pickBrightness(H, S);
-
-  // Then we return the HSB color in the desired format
-  return HSVtoHSL([H, S, B]);
+  const h = pickHue(options);
+  const s = pickSaturation(h);
+  const b = pickBrightness(h, s);
+  return HSVtoHSL([h, s, b]);
 };
 
 function pickHue(options) {
@@ -143,133 +222,6 @@ function randomWithin(range) {
   seed = (seed * 9301 + 49297) % 233280;
   const rnd = seed / 233280.0;
   return Math.floor(min + rnd * (max - min));
-}
-
-function defineColor(name, hueRange, lowerBounds) {
-  const sMin = lowerBounds[0][0];
-  const sMax = lowerBounds[lowerBounds.length - 1][0];
-  const bMin = lowerBounds[lowerBounds.length - 1][1];
-  const bMax = lowerBounds[0][1];
-
-  colorDictionary[name] = {
-    hueRange,
-    lowerBounds,
-    saturationRange: [sMin, sMax],
-    brightnessRange: [bMin, bMax]
-  };
-}
-
-function loadColorBounds() {
-  defineColor('monochrome', null, [
-    [0, 0],
-    [100, 0]
-  ]);
-
-  defineColor(
-    'red',
-    [-26, 18],
-    [
-      [20, 100],
-      [30, 92],
-      [40, 89],
-      [50, 85],
-      [60, 78],
-      [70, 70],
-      [80, 60],
-      [90, 55],
-      [100, 50]
-    ]
-  );
-
-  defineColor(
-    'orange',
-    [18, 46],
-    [
-      [20, 100],
-      [30, 93],
-      [40, 88],
-      [50, 86],
-      [60, 85],
-      [70, 70],
-      [100, 70]
-    ]
-  );
-
-  defineColor(
-    'yellow',
-    [46, 62],
-    [
-      [25, 100],
-      [40, 94],
-      [50, 89],
-      [60, 86],
-      [70, 84],
-      [80, 82],
-      [90, 80],
-      [100, 75]
-    ]
-  );
-
-  defineColor(
-    'green',
-    [62, 178],
-    [
-      [30, 100],
-      [40, 90],
-      [50, 85],
-      [60, 81],
-      [70, 74],
-      [80, 64],
-      [90, 50],
-      [100, 40]
-    ]
-  );
-
-  defineColor(
-    'blue',
-    [178, 257],
-    [
-      [20, 100],
-      [30, 86],
-      [40, 80],
-      [50, 74],
-      [60, 60],
-      [70, 52],
-      [80, 44],
-      [90, 39],
-      [100, 35]
-    ]
-  );
-
-  defineColor(
-    'purple',
-    [257, 282],
-    [
-      [20, 100],
-      [30, 87],
-      [40, 79],
-      [50, 70],
-      [60, 65],
-      [70, 59],
-      [80, 52],
-      [90, 45],
-      [100, 42]
-    ]
-  );
-
-  defineColor(
-    'pink',
-    [282, 334],
-    [
-      [20, 100],
-      [30, 90],
-      [40, 86],
-      [60, 84],
-      [80, 80],
-      [90, 75],
-      [100, 73]
-    ]
-  );
 }
 
 function HSVtoHSL(hsv) {
