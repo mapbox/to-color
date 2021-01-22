@@ -21,9 +21,9 @@
       swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b';
       const swatchContainer = document.createElement('div');
       swatchContainer.classList = 'round-t h120 txt-xs flex-parent scroll-hidden';
+      const s = toColor(swatch);
 
       if (Array.isArray(swatch)) {
-        const s = toColor(swatch[0], { count: swatch.length});
         container.classList = 'col col--6 mb12'; 
 
         s.forEach(c => {
@@ -38,7 +38,6 @@
         swatchSnippet.textContent = `toColor([${textContent}]);`;
 
       } else {
-        const s = toColor(swatch);
         container.classList = 'col col--3 mb12'; 
         swatchContainer.classList.add('px12', 'py12');
         swatchContainer.textContent = swatchContainer.style.backgroundColor = toHSLString(s);
@@ -48,7 +47,6 @@
       container.appendChild(swatchContainer);
       container.appendChild(swatchSnippet);
       swatches.appendChild(container); 
-              
     });
   </script>
 </body>

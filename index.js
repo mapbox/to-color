@@ -237,30 +237,32 @@ function getRealHueRange(colorHue) {
   }
 }
 
-function toColor(str, options) {
+// Pass string or array to toColor
+// Remove `options` from code and readme
+// Pass formatted string or parts of a color as returned output
+// Pass `seed` from functions and drop it from global space
+// Find out why colors are being duplicated.
+
+function toColor(input, options) {
   options = options || {};
-  if (typeof str === 'string') {
-    seed = stringToInteger(str);
-  } else {
-    seed = str;
-  }
 
-  // Check if we need to generate multiple colors
-  if (options.count !== null && options.count !== undefined) {
-
-    const totalColors = options.count;
+  if (Array.isArray(input)) {
     const colors = [];
 
     // Value false at index i means the range i is not taken yet.
-    for (let i = 0; i < options.count; i++) {
-      colorRanges.push(false)
-    }
+    input.forEach(str => colorRanges.push(false));
 
-    while (totalColors > colors.length) {
-      colors.push(toColor(str));
+    while (input.length > colors.length) {
+      colors.push(toColor(input[colors.length]));
     }
 
     return colors;
+  }
+
+  if (typeof input === 'string') {
+    seed = stringToInteger(input);
+  } else {
+    seed = input;
   }
 
   const h = pickHue(options);
@@ -272,4 +274,3 @@ function toColor(str, options) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = toColor;
 }
-
