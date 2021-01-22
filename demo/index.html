@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-assembly/mbx/v0.24.0/assembly.min.css'>
+  <script src='https://api.mapbox.com/mapbox-assembly/mbx/v0.28.2/assembly.js'></script>
+  <script src='../index.js'></script>
+</head>
+<body class="bg-gray-faint limiter">
+  <div class="px36 py36">
+    <h1 class="txt-h3 txt-fancy block mb24">@mapbox/to-color</h1>
+    <div id="swatches" class="grid grid--gut12 txt-mono"></div>
+  </div>
+  <script>
+    const swatches = document.getElementById('swatches');
+    ['penny', 'steve'].forEach(swatch => {
+      const s = toColor(swatch);
+      const container = document.createElement('div');
+      container.classList = 'col col--6'; 
+
+      const swatchContainer = document.createElement('div');
+      swatchContainer.classList = 'round-t h120 px12 py12';
+      swatchContainer.textContent = swatchContainer.style.backgroundColor = `hsl(${s[0]}, ${s[1]}%, ${s[2]}%)`;
+
+      const swatchSnippet = document.createElement('div');
+      swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b';
+      swatchSnippet.textContent = `toColor('${swatch}');`;
+
+      container.appendChild(swatchContainer);
+      container.appendChild(swatchSnippet);
+      swatches.appendChild(container); 
+    });
+  </script>
+</body>
+</html>

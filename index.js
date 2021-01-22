@@ -1,27 +1,309 @@
-/**
- * Given an arbitrary string, create a rgba color
- * of a specified opacity to identify it visually.
- * @param {string} str any arbitrary string
- * @param {number} opacity an opacity value from 0 to 1
- * @returns {string} output color
- * @example
- * toColor('tom') //= 'rgba(187,153,68,0.75)'
- * toColor() //= 'rgba(0,0,0,0.74)'
- */
-function toColor(str, opacity) {
-  var rgb = [0, 0, 0, opacity || 0.75];
-  try {
-    for (var i = 0; i < str.length; i++) {
-      var v = str.charCodeAt(i);
-      var idx = v % 3;
-      rgb[idx] = (rgb[i % 3] + (13 * (v % 13))) % 20;
+
+// TODO Instead of passing `known` pass an array of strings? 
+
+
+const colorDictionary = {};
+
+// Populate the color dictionary
+loadColorBounds();
+
+// TODO use this to push known color values into.
+const colorRanges = [];
+let seed;
+
+const toColor = (str, options) => {
+  options = options || {};
+
+  if (typeof str === 'string') {
+    seed = stringToInteger(str);
+  } else {
+    seed = str;
+  }
+
+  // First we pick a hue (H)
+  const H = pickHue(options);
+
+  // Then use H to determine saturation (S)
+  const S = pickSaturation(H);
+
+  // Then use S and H to determine brightness (B).
+  const B = pickBrightness(H, S);
+
+  // Then we return the HSB color in the desired format
+  return HSVtoHSL([H, S, B]);
+};
+
+function pickHue(options) {
+  let hueRange;
+  let hue;
+
+  if (colorRanges.length > 0) {
+    hueRange = getRealHueRange(options.hue);
+
+    hue = randomWithin(hueRange);
+
+    //Each of colorRanges.length ranges has a length equal approximatelly one step
+    const step = (hueRange[1] - hueRange[0]) / colorRanges.length;
+
+    let j = parseInt((hue - hueRange[0]) / step);
+
+    //Check if the range j is taken
+    if (colorRanges[j] === true) {
+      j = (j + 2) % colorRanges.length;
+    } else {
+      colorRanges[j] = true;
     }
-  } finally {
-  return 'rgba(' +
-    rgb.map(function(c, idx) {
-      return idx === 3 ? c : (4 + c) * 17;
-    }).join(',') + ')';
+
+    const min = (hueRange[0] + j * step) % 359;
+    const max = (hueRange[0] + (j + 1) * step) % 359;
+
+    hueRange = [min, max];
+
+    hue = randomWithin(hueRange);
+
+    if (hue < 0) {
+      hue = 360 + hue;
+    }
+    return hue;
+  } else {
+    hueRange = [0, 360];
+
+    hue = randomWithin(hueRange);
+    // Instead of storing red as two seperate ranges,
+    // we group them, using negative numbers
+    if (hue < 0) {
+      hue = 360 + hue;
+    }
+
+    return hue;
   }
 }
 
-module.exports = toColor;
+function pickSaturation(hue) {
+  const saturationRange = getSaturationRange(hue);
+  const sMin = saturationRange[0];
+  const sMax = saturationRange[1];
+  return randomWithin([sMin, sMax]);
+}
+
+function pickBrightness(H, S) {
+  const bMin = getMinimumBrightness(H, S);
+  const bMax = 100;
+  return randomWithin([bMin, bMax]);
+}
+
+function getMinimumBrightness(H, S) {
+  var lowerBounds = getColorInfo(H).lowerBounds;
+
+  for (var i = 0; i < lowerBounds.length - 1; i++) {
+    var s1 = lowerBounds[i][0],
+      v1 = lowerBounds[i][1];
+
+    var s2 = lowerBounds[i + 1][0],
+      v2 = lowerBounds[i + 1][1];
+
+    if (S >= s1 && S <= s2) {
+      var m = (v2 - v1) / (s2 - s1),
+        b = v1 - m * s1;
+
+      return m * S + b;
+    }
+  }
+
+  return 0;
+}
+
+function getSaturationRange(hue) {
+  return getColorInfo(hue).saturationRange;
+}
+
+function getColorInfo(hue) {
+  // Maps red colors to make picking hue easier
+  if (hue >= 334 && hue <= 360) {
+    hue -= 360;
+  }
+
+  for (const colorName in colorDictionary) {
+    var color = colorDictionary[colorName];
+    if (
+      color.hueRange &&
+      hue >= color.hueRange[0] &&
+      hue <= color.hueRange[1]
+    ) {
+      return colorDictionary[colorName];
+    }
+  }
+  return 'Color not found';
+}
+
+function randomWithin(range) {
+  //from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+  const max = range[1] || 1;
+  const min = range[0] || 0;
+  seed = (seed * 9301 + 49297) % 233280;
+  const rnd = seed / 233280.0;
+  return Math.floor(min + rnd * (max - min));
+}
+
+function defineColor(name, hueRange, lowerBounds) {
+  const sMin = lowerBounds[0][0];
+  const sMax = lowerBounds[lowerBounds.length - 1][0];
+  const bMin = lowerBounds[lowerBounds.length - 1][1];
+  const bMax = lowerBounds[0][1];
+
+  colorDictionary[name] = {
+    hueRange,
+    lowerBounds,
+    saturationRange: [sMin, sMax],
+    brightnessRange: [bMin, bMax]
+  };
+}
+
+function loadColorBounds() {
+  defineColor('monochrome', null, [
+    [0, 0],
+    [100, 0]
+  ]);
+
+  defineColor(
+    'red',
+    [-26, 18],
+    [
+      [20, 100],
+      [30, 92],
+      [40, 89],
+      [50, 85],
+      [60, 78],
+      [70, 70],
+      [80, 60],
+      [90, 55],
+      [100, 50]
+    ]
+  );
+
+  defineColor(
+    'orange',
+    [18, 46],
+    [
+      [20, 100],
+      [30, 93],
+      [40, 88],
+      [50, 86],
+      [60, 85],
+      [70, 70],
+      [100, 70]
+    ]
+  );
+
+  defineColor(
+    'yellow',
+    [46, 62],
+    [
+      [25, 100],
+      [40, 94],
+      [50, 89],
+      [60, 86],
+      [70, 84],
+      [80, 82],
+      [90, 80],
+      [100, 75]
+    ]
+  );
+
+  defineColor(
+    'green',
+    [62, 178],
+    [
+      [30, 100],
+      [40, 90],
+      [50, 85],
+      [60, 81],
+      [70, 74],
+      [80, 64],
+      [90, 50],
+      [100, 40]
+    ]
+  );
+
+  defineColor(
+    'blue',
+    [178, 257],
+    [
+      [20, 100],
+      [30, 86],
+      [40, 80],
+      [50, 74],
+      [60, 60],
+      [70, 52],
+      [80, 44],
+      [90, 39],
+      [100, 35]
+    ]
+  );
+
+  defineColor(
+    'purple',
+    [257, 282],
+    [
+      [20, 100],
+      [30, 87],
+      [40, 79],
+      [50, 70],
+      [60, 65],
+      [70, 59],
+      [80, 52],
+      [90, 45],
+      [100, 42]
+    ]
+  );
+
+  defineColor(
+    'pink',
+    [282, 334],
+    [
+      [20, 100],
+      [30, 90],
+      [40, 86],
+      [60, 84],
+      [80, 80],
+      [90, 75],
+      [100, 73]
+    ]
+  );
+}
+
+function HSVtoHSL(hsv) {
+  const h = hsv[0];
+  const s = hsv[1] / 100;
+  const v = hsv[2] / 100;
+  const k = (2 - s) * v;
+  return [
+    h,
+    Math.round(((s * v) / (k < 1 ? k : 2 - k)) * 10000) / 100,
+    (k / 2) * 100
+  ];
+}
+
+function stringToInteger(string) {
+  var total = 0;
+  for (var i = 0; i !== string.length; i++) {
+    if (total >= Number.MAX_SAFE_INTEGER) break;
+    total += string.charCodeAt(i);
+  }
+  return total;
+}
+
+// get The range of given hue when options.count!=0
+function getRealHueRange(colorHue) {
+  if (!isNaN(colorHue)) {
+    var number = parseInt(colorHue);
+
+    if (number < 360 && number > 0) {
+      return getColorInfo(colorHue).hueRange;
+    }
+  }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = toColor;
+}
