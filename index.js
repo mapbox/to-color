@@ -97,7 +97,7 @@ const colorDictionary = [
   return memo;
 }, {});
 
-function pickHue(options) {
+function pickHue() {
   let hueRange;
   let hue;
 
@@ -237,26 +237,16 @@ function getRealHueRange(colorHue) {
   }
 }
 
-// Pass string or array to toColor
-// Remove `options` from code and readme
 // Pass formatted string or parts of a color as returned output
 // Pass `seed` from functions and drop it from global space
 // Find out why colors are being duplicated.
 
-function toColor(input, options) {
-  options = options || {};
-
+function toColor(input) {
   if (Array.isArray(input)) {
-    const colors = [];
-
     // Value false at index i means the range i is not taken yet.
     input.forEach(str => colorRanges.push(false));
 
-    while (input.length > colors.length) {
-      colors.push(toColor(input[colors.length]));
-    }
-
-    return colors;
+    return input.map(color => toColor(color));
   }
 
   if (typeof input === 'string') {
@@ -265,7 +255,7 @@ function toColor(input, options) {
     seed = input;
   }
 
-  const h = pickHue(options);
+  const h = pickHue();
   const s = pickSaturation(h);
   const b = pickBrightness(h, s);
   return HSVtoHSL([h, s, b]);

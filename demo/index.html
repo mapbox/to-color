@@ -4,44 +4,60 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
   <link rel='stylesheet' href='https://api.mapbox.com/mapbox-assembly/mbx/v0.24.0/assembly.min.css'>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js'></script>
   <script src='https://api.mapbox.com/mapbox-assembly/mbx/v0.28.2/assembly.js'></script>
   <script src='../index.js'></script>
 </head>
 <body class="bg-gray-faint limiter">
   <div class="px36 py36">
-    <h1 class="txt-h3 txt-fancy block mb24">@mapbox/to-color</h1>
+    <header class="mb36">
+      <h1 class="txt-h4 txt-fancy block mb6">@mapbox/to-color</h1>
+      <p class="txt-l">Random deterministic colors from arbitrary strings or numbers. Generate a harmonious palette when you pass an array of them. See <a href="https://github.com/mapbox/to-color" class="link" target="_blank">github.com/mapbox/to-color</a> to learn more.</p>
+    </header>
+
     <div id="swatches" class="grid grid--gut12 txt-mono"></div>
   </div>
   <script>
-    const toHSLString = (hsl) => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
+    const toHSLString = hsl => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
+    const wrapOrNah = val => typeof val === 'string' ? `'${val}'` : val;
     const swatches = document.getElementById('swatches');
-    ['penny', 'deli', ['cyrus', 'penelope', 'steve', 'mouse']].forEach(swatch => {
+    [
+      'penny',
+      'linus',
+      ['penny', 'linus'],
+      ['penny', 'linus', 'deli'],
+      ['cyrus', 'penelope', 'steve', 'mouse'],
+      ['mouse', 'steve', 'cyrus', 'penelope'],
+      ['mouse', 'steve', 'cyrus', 'penelope', 'penny', 'linus', 'deli'],
+      _.range(0, 16),
+      _.range(15, 31)
+    ].forEach(swatch => {
       const container = document.createElement('div');
       const swatchSnippet = document.createElement('div');
-      swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b';
+      swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b txt-truncate';
       const swatchContainer = document.createElement('div');
-      swatchContainer.classList = 'round-t h120 txt-xs flex-parent scroll-hidden';
+      swatchContainer.classList = 'round-t h120 txt-xs txt-bold flex-parent scroll-hidden';
       const s = toColor(swatch);
 
       if (Array.isArray(swatch)) {
-        container.classList = 'col col--6 mb12'; 
+        container.classList = `col col--12 ${swatch.length < 8 ? 'col--6-ml' : ''} mb12`;
 
         s.forEach(c => {
           const swatchContainerItem = document.createElement('div');
-          swatchContainerItem.classList = 'px12 py12 flex-child flex-child--grow h120';
-          swatchContainerItem.textContent = swatchContainerItem.style.backgroundColor = toHSLString(c);
+          swatchContainerItem.classList = `px12 py12 flex-child flex-child--grow h120`;
+          swatchContainerItem.textContent = swatchContainerItem.title = swatchContainerItem.style.backgroundColor = toHSLString(c);
           swatchContainer.appendChild(swatchContainerItem);
         });
 
         let textContent = '';
-        swatch.forEach((c, i) => textContent += `${i === 0 ? '' : ', '}'${c}'`)
-        swatchSnippet.textContent = `toColor([${textContent}]);`;
+        swatch.forEach((c, i) => textContent += `${i === 0 ? '' : ', '}${wrapOrNah(c)}`)
+        swatchSnippet.textContent = swatchSnippet.title = `toColor([${textContent}]);`;
 
       } else {
-        container.classList = 'col col--3 mb12'; 
+        container.classList = 'col col--6 col--3-ml mb12'; 
         swatchContainer.classList.add('px12', 'py12');
-        swatchContainer.textContent = swatchContainer.style.backgroundColor = toHSLString(s);
-        swatchSnippet.textContent = `toColor('${swatch}');`;
+        swatchContainer.textContent = swatchContainer.title = swatchContainer.style.backgroundColor = toHSLString(s);
+        swatchSnippet.textContent = swatchSnippet.text = `toColor(${wrapOrNah(swatch)});`;
       }
 
       container.appendChild(swatchContainer);

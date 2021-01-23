@@ -1,7 +1,7 @@
 {
   "name": "@mapbox/to-color",
   "version": "2.0.0",
-  "description": "Generate a consistent random color from an arbitrary string. Pass previously known colors to generate a harmonious palette.",
+  "description": "Random deterministic colors from arbitrary strings or numbers. Generate a harmonious palette when you pass an array of them.",
   "main": "index.js",
   "scripts": {
     "start": "serve",

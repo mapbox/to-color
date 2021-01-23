@@ -1,13 +1,15 @@
 `@mapboc/to-color`
 ---
 
-Generate a consistent random color from an arbitrary string. Pass previously known colors to generate a harmonious palette.
+Random deterministic colors from arbitrary strings or numbers. Generate a harmonious palette when you pass an array of them.
 
 [![build status](https://secure.travis-ci.org/mapbox/to-color.svg)](http://travis-ci.org/mapbox/to-color)
 
 ### install
 
-    npm install @mapbox/to-color
+```bash
+npm install @mapbox/to-color
+```
 
 ### Usage
 
@@ -22,17 +24,6 @@ toColor('tom', { known: ['rgb(187, 153, 68)'] })
 
 ```
 
-### Options
-
-| Option | Type | Description |
-| --- | --- | --- |
-| `known` | Array<string> | A list of known color values that should be taken into consideration for distribution when generating a random color |
-
----
-
-**Credit** v2 is adapted from [randomColor](https://github.com/davidmerfield/randomColor) with a different API, reduced options, and the ability to pass known colors to generate a distributed random set.
-
-
 ### Developing
 
 ```
@@ -44,3 +35,7 @@ npm install & npm start
 npm run test
 
 ```
+
+---
+
+**Credit** v2 is adapted from [randomColor](https://github.com/davidmerfield/randomColor) with a different API, reduced options, and the ability to pass known colors to generate a distributed random set.
