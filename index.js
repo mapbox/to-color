@@ -202,9 +202,8 @@ function randomWithin(range) {
   return Math.floor(min + rnd * (max - min));
 }
 
-const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
-
 function HSVtoHSL(hsv) {
+  const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
   const h = hsv[0];
   const s = hsv[1] / 100;
   const v = hsv[2] / 100;
@@ -217,8 +216,8 @@ function HSVtoHSL(hsv) {
 }
 
 function stringToInteger(string) {
-  var total = 0;
-  for (var i = 0; i !== string.length; i++) {
+  let total = 0;
+  for (let i = 0; i !== string.length; i++) {
     if (total >= Number.MAX_SAFE_INTEGER) break;
     total += string.charCodeAt(i);
   }
@@ -237,14 +236,13 @@ function getRealHueRange(colorHue) {
   }
 }
 
-// Pass formatted string or parts of a color as returned output
 // Pass `seed` from functions and drop it from global space
-// Find out why colors are being duplicated.
+// Conclude if the color dictionary is required
 
 function toColor(input) {
   if (Array.isArray(input)) {
     // Value false at index i means the range i is not taken yet.
-    input.forEach(str => colorRanges.push(false));
+    input.forEach(() => colorRanges.push(false));
 
     return input.map(color => toColor(color));
   }
@@ -258,7 +256,14 @@ function toColor(input) {
   const h = pickHue();
   const s = pickSaturation(h);
   const b = pickBrightness(h, s);
-  return HSVtoHSL([h, s, b]);
+  const hsl =  HSVtoHSL([h, s, b]);
+
+  return {
+    hsl: {
+      raw: hsl,
+      formatted: `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
+    }
+  }
 };
 
 if (typeof module !== 'undefined' && module.exports) {
