@@ -1,5 +1,5 @@
-`@mapboc/to-color`
----
+`@mapbox/to-color`
+===
 
 Random deterministic colors from arbitrary strings or numbers. Generate a harmonious palette when you pass an array of them.
 
@@ -44,10 +44,16 @@ Returns
 */
 ```
 
+### Options
+
+| Option | Value | Description |
+| --- | --- | --- |
+| `brightness` | A positive or negative number | Adjusts brightness from the derived min/max range. |
+| `saturation` | A positive or negative number | Adjusts saturation from the derived min/max range. |
+
 ### Developing
 
 ```
-
 # Demo site
 npm install & npm start
 

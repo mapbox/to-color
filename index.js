@@ -1,5 +1,6 @@
 const HUE_MAX = 360;
-const SATURATION_MAX = BRIGHTNESS_MAX = 100;
+const BRIGHTNESS_MAX = 100;
+const SATURATION_MAX = 100;
 let colorRanges = [];
 let seed;
 
