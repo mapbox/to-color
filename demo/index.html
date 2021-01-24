@@ -20,25 +20,26 @@
     const wrapOrNah = val => typeof val === 'string' ? `'${val}'` : val;
     const swatches = document.getElementById('swatches');
     [
-      'penny',
-      'linus',
-      ['penny', 'linus'],
-      ['penny', 'linus', 'deli'],
-      ['cyrus', 'penelope', 'steve', 'mouse'],
-      ['mouse', 'steve', 'cyrus', 'penelope'],
-      ['mouse', 'steve', 'cyrus', 'penelope', 'penny', 'linus', 'deli'],
-      ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
-      _.range(0, 26)
+      ['penny'],
+      ['linus'],
+      [['penny', 'linus']],
+      [['penny', 'linus', 'deli']],
+      [['cyrus', 'penelope', 'steve', 'mouse']],
+      [['mouse', 'steve', 'cyrus', 'penelope']],
+      [['mouse', 'steve', 'cyrus', 'penelope', 'penny', 'linus', 'deli']],
+      [_.range(0, 26)],
+      [_.range(0, 26), { brightness: -50, saturation: -50 }],
+      [_.range(0, 26), { brightness: 50, saturation: 50 }]
     ].forEach(swatch => {
       const container = document.createElement('div');
       const swatchSnippet = document.createElement('div');
       swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b txt-truncate';
       const swatchContainer = document.createElement('div');
       swatchContainer.classList = 'round-t h120 txt-xs txt-bold flex-parent scroll-hidden';
-      const s = toColor(swatch);
+      const s = toColor(swatch[0], swatch[1]);
 
-      if (Array.isArray(swatch)) {
-        container.classList = `col col--12 ${swatch.length < 8 ? 'col--6-ml' : ''} mb12`;
+      if (Array.isArray(swatch[0])) {
+        container.classList = `col col--12 ${swatch[0].length < 8 ? 'col--6-ml' : ''} mb12`;
 
         s.forEach(c => {
           const { hsl } = c;
@@ -49,8 +50,9 @@
         });
 
         let textContent = '';
-        swatch.forEach((c, i) => textContent += `${i === 0 ? '' : ', '}${wrapOrNah(c)}`)
-        swatchSnippet.textContent = swatchSnippet.title = `toColor([${textContent}]);`;
+        let options = swatch[1] ? `, ${JSON.stringify(swatch[1])}` : '';
+        swatch[0].forEach((c, i) => textContent += `${i === 0 ? '' : ', '}${wrapOrNah(c)}`)
+        swatchSnippet.textContent = swatchSnippet.title = `toColor([${textContent}]${options});`;
 
       } else {
         const { hsl } = s;

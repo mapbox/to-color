@@ -6,6 +6,7 @@
   "scripts": {
     "start": "serve",
     "test": "eslint index.js && jest",
+    "format": "prettier --write 'index.js'",
     "jest-watch": "jest --watch"
   },
   "keywords": [
