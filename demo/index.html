@@ -21,12 +21,11 @@
     const swatches = document.getElementById('swatches');
     [
       ['penny'],
-      ['linus'],
-      [['penny', 'linus']],
-      [['penny', 'linus', 'deli']],
+      ['deli'],
+      [['penny', 'deli']],
       [['cyrus', 'penelope', 'steve', 'mouse']],
-      [['mouse', 'steve', 'cyrus', 'penelope']],
-      [['mouse', 'steve', 'cyrus', 'penelope', 'penny', 'linus', 'deli']],
+      [['mouse', 'steve', 'penelope', 'cyrus']],
+      [['admin', 'aeroway', 'airport_label', 'building', 'housenum_label', 'landuse', 'landuse_overlay', 'motorway_junction', 'natural_label', 'place_label', 'poi_label', 'road', 'structure', 'transit_stop_label', 'water', 'waterway']],
       [_.range(0, 26)],
       [_.range(0, 26), { brightness: -50, saturation: -50 }],
       [_.range(0, 26), { brightness: 50, saturation: 50 }]
@@ -59,7 +58,7 @@
         container.classList = 'col col--6 col--3-ml mb12'; 
         swatchContainer.classList.add('px12', 'py12');
         swatchContainer.textContent = swatchContainer.title = swatchContainer.style.backgroundColor = hsl.formatted;
-        swatchSnippet.textContent = swatchSnippet.text = `toColor(${wrapOrNah(swatch)});`;
+        swatchSnippet.textContent = swatchSnippet.text = `toColor(${wrapOrNah(swatch[0])});`;
       }
 
       container.appendChild(swatchContainer);
