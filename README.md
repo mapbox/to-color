@@ -3,7 +3,7 @@
 
 Random deterministic colors from arbitrary strings or numbers. Generate a harmonious palette when you pass an array of them.
 
-[![build status](https://secure.travis-ci.org/mapbox/to-color.svg)](http://travis-ci.org/mapbox/to-color)
+[![Build Status](https://travis-ci.org/mapbox/to-color.svg)](https://travis-ci.org/mapbox/to-color)
 
 ### install
 
