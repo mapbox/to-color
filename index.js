@@ -1,5 +1,3 @@
-console.log('module script should come first');
-
 export default class toColor {
   HUE_MAX = 360;
 
@@ -27,9 +25,8 @@ export default class toColor {
   }
 
   _pickHue = () => {
-    const HUE_MAX = this.HUE_MAX;
-    let hueRange = [0, HUE_MAX];
-    let hue;
+    let hueRange = [0, this.HUE_MAX];
+    let hue = this._pseudoRandom(hueRange);
 
     // Each range has a length equal approximatelly one step
     const step = (hueRange[1] - hueRange[0]) / this.range.length;
@@ -46,8 +43,8 @@ export default class toColor {
       j = (j + 2) % this.range.length;
     }
 
-    const min = (hueRange[0] + j * step) % HUE_MAX;
-    const max = (hueRange[0] + (j + 1) * step) % HUE_MAX;
+    const min = (hueRange[0] + j * step) % this.HUE_MAX;
+    const max = (hueRange[0] + (j + 1) * step) % this.HUE_MAX;
 
     hueRange = [min, max];
 
@@ -55,7 +52,7 @@ export default class toColor {
 
     // Red is on both ends of the color spectrum. Instead of storing red as two
     // ranges, lookup is grouped in colorDictionary using negative numbers.
-    if (hue < 0) hue = HUE_MAX + hue;
+    if (hue < 0) hue = this.HUE_MAX + hue;
 
     return hue;
   }
