@@ -16,31 +16,27 @@ npm install @mapbox/to-color
 ```js
 import toColor from '@mapbox/to-color'
 
-const { hsl } = toColor('tom');
+const color = toColor('tmcw');
+const { hsl } = color.getColor();
+
 /*
 Returns
 
 {
-  raw: [218, 81.43, 62.31],
-  formatted: 'hsl(218, 81.43%, 62.31%)'
+  raw: [314, 97.95, 50.98],
+  formatted: 'hsl(314, 97.95%, 50.98%)'
 }
 */
 
-toColor(['tom', 'tmcw']);
+const { hsl } = color.getColor();
 
 /*
 Returns
 
-[
-  {
-    raw: [77, 97.78, 54.94],
-    formatted: 'hsl(77, 97.78%, 54.94%)'
-  },
-  {
-    raw: [176, 97.96, 50.99],
-    formatted: 'hsl(176, 97.96%, 50.99%)'
-  }
-]
+{
+  raw: [2, 78.26, 54],
+  formatted: 'hsl(2, 78.26%, 54%)'
+}
 */
 ```
 
@@ -53,13 +49,12 @@ Returns
 
 ### Developing
 
-```
+```bash
 # Demo site
 npm install & npm start
 
 # Run tests
 npm run test
-
 ```
 
 ---
