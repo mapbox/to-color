@@ -5,6 +5,7 @@
   },
   "extends": ["eslint:recommended", "eslint-config-prettier"],
   "rules": {
+    "no-constant-condition": 0,
     "indent": ["error", 2],
     "no-console": "warn"
   },

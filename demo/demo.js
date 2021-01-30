@@ -4,6 +4,10 @@ const wrapOrNah = val => typeof val === 'string' ? `'${val}'` : val;
 const swatches = document.getElementById('swatches');
 
 [
+  ['mouse', 6],
+  ['penny', 6],
+  ['deli', 6],
+  ['cyrus', 6],
   ['mapbox.mapbox-streets-v8', 16],
   ['mapbox.mapbox-streets-v8', 16, { brightness: -50, saturation: 50 }],
   ['mapbox.mapbox-streets-v8', 16, { brightness: 50, saturation: -50 }]

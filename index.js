@@ -3,14 +3,14 @@ export default class toColor {
 
   constructor(seed, options) {
     this.options = options || {};
-    this.range = [];
     this.seed = typeof seed === 'string' ? this._stringToInteger(seed) : seed;
+    this.knownHue = [];
+    this.knownSaturation = [];
+    this.knownBrightness = [];
   }
 
   getColor() {
     const { brightness, saturation } = this.options;
-    this.range.push(false);
-
     const h = this._pickHue();
     const s = this._pickSaturation(h, saturation || 0);
     const b = this._pickBrightness(h, s, brightness || 0);
@@ -25,55 +25,44 @@ export default class toColor {
   }
 
   _pickHue = () => {
-    let hueRange = [0, this.HUE_MAX];
-    let hue = this._pseudoRandom(hueRange);
+    let hue = this._pseudoRandom([0, this.HUE_MAX]);
+    const min = hue % this.HUE_MAX;
+    const max = (hue + 1) % this.HUE_MAX;
 
-    // Each range has a length equal approximatelly one step
-    const step = (hueRange[1] - hueRange[0]) / this.range.length;
-
-    let j = parseInt((hue - hueRange[0]) / step);
-
-    // Modify `j` until it matches a color range index that hasn't been taken
-    for (let range = 0; range < this.range.length; range++) {
-      if (!this.range[j]) {
-        this.range[j] = true;
-        break;
-      }
-
-      j = (j + 2) % this.range.length;
-    }
-
-    const min = (hueRange[0] + j * step) % this.HUE_MAX;
-    const max = (hueRange[0] + (j + 1) * step) % this.HUE_MAX;
-
-    hueRange = [min, max];
-
-    hue = this._pseudoRandom(hueRange);
+    hue = this._pseudoRandom([min, max]);
 
     // Red is on both ends of the color spectrum. Instead of storing red as two
     // ranges, lookup is grouped in colorDictionary using negative numbers.
     if (hue < 0) hue = this.HUE_MAX + hue;
 
+    hue = this._distribute(this.knownHue, hue, 2);
+
+    this.knownHue.push(hue);
     return hue;
   }
 
   _pickSaturation = (h, modifier) => {
     const SATURATION_MAX = 100;
     const saturationRange = this._getColorInfo(h)[2];
-    let sMin = saturationRange[0];
-    let sMax = saturationRange[1];
-    sMin = modifier > 0 ? this._clamp(sMin + modifier, 0, SATURATION_MAX) : sMin;
-    sMax = modifier < 0 ? this._clamp(sMax + modifier, 0, SATURATION_MAX) : sMax;
-    return this._pseudoRandom([sMin, sMax]);
+    let min = saturationRange[0];
+    let max = saturationRange[1];
+    min = modifier > 0 ? this._clamp(min + modifier, 0, SATURATION_MAX) : min;
+    max = modifier < 0 ? this._clamp(max + modifier, 0, SATURATION_MAX) : max;
+    const saturation = this._distribute(this.knownSaturation, this._pseudoRandom([min, max], 1));
+    this.knownSaturation.push(saturation);
+    return saturation;
   }
+  
 
   _pickBrightness = (h, s, modifier) => {
     const BRIGHTNESS_MAX = 100;
-    let bMin = this._getMinimumBrightness(h, s);
-    let bMax = 100;
-    bMin = modifier > 0 ? this._clamp(bMin + modifier, 0, BRIGHTNESS_MAX) : bMin;
-    bMax = modifier < 0 ? this._clamp(bMax + modifier, 0, BRIGHTNESS_MAX) : bMax;
-    return this._pseudoRandom([bMin, bMax]);
+    let min = this._getMinimumBrightness(h, s);
+    let max = 100;
+    min = modifier > 0 ? this._clamp(min + modifier, 0, BRIGHTNESS_MAX) : min;
+    max = modifier < 0 ? this._clamp(max + modifier, 0, BRIGHTNESS_MAX) : max;
+    const brightness = this._distribute(this.knownBrightness, this._pseudoRandom([min, max], 1));
+    this.knownBrightness.push(brightness);
+    return brightness;
   }
 
   _getMinimumBrightness = (h, s) => {
@@ -101,6 +90,19 @@ export default class toColor {
     this.seed = (this.seed * 9301 + 49297) % 233280;
     const rnd = this.seed / 233280;
     return Math.trunc(min + rnd * (max - min));
+  }
+
+  _distribute = (known, candidate, deviation) => {
+    let distributedValue = candidate;
+
+    // Increment candidate by deviation until deviation from known is false.
+    while (true) {
+      if (known.some(v => Math.abs(distributedValue - v) <= deviation)) {
+        distributedValue = distributedValue + deviation; 
+      } else {
+        return distributedValue;
+      }
+    }
   }
 
   _clamp = (n, min, max) => n <= min ? min : n >= max ? max : n;
