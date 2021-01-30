@@ -1,7 +1,7 @@
 `@mapbox/to-color`
 ===
 
-Random deterministic colors from arbitrary strings or numbers. Generate a harmonious palette when you pass an array of them.
+Randomly generate a well distributed color palette that's deterministic.
 
 [![Build Status](https://travis-ci.org/mapbox/to-color.svg)](https://travis-ci.org/mapbox/to-color)
 
@@ -16,7 +16,13 @@ npm install @mapbox/to-color
 ```js
 import toColor from '@mapbox/to-color'
 
-const color = toColor('tmcw');
+const color = new toColor('tmcw');
+
+// Or a number
+// const color = new toColor(1234);
+// Or with options
+// const color = new toColor('tmcw', { brightness: 25, saturation: -10 });
+
 const { hsl } = color.getColor();
 
 /*
@@ -59,4 +65,4 @@ npm run test
 
 ---
 
-**Credit** v2 is adapted from [randomColor](https://github.com/davidmerfield/randomColor) with a different API, reduced options, and the ability to pass known colors to generate a distributed random set.
+**Credit** v2 is adapted from [randomColor](https://github.com/davidmerfield/randomColor).

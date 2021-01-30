@@ -5,9 +5,9 @@ const swatches = document.getElementById('swatches');
 
 [
   ['mouse', 6],
-  ['penny', 6],
   ['deli', 6],
-  ['cyrus', 6],
+  [1234, 6],
+  [5678, 6],
   ['mapbox.mapbox-streets-v8', 16],
   ['mapbox.mapbox-streets-v8', 16, { brightness: -50, saturation: 50 }],
   ['mapbox.mapbox-streets-v8', 16, { brightness: 50, saturation: -50 }]

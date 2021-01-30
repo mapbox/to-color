@@ -23,6 +23,18 @@ describe('toColor', () => {
     });
   });
 
+  describe('number as value', () => {
+    const color = new toColor(1234);
+    it('works with a number', () => {
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(148, 62.77%, 67.75%)',
+          raw: [148, 62.77, 67.75]
+        }
+      });
+    });
+  });
+
   describe('options', () => {
     const color = new toColor('penny', { brightness: -50, saturation: 50 });
 
