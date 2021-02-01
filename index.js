@@ -1,27 +1,35 @@
 export default class toColor {
   HUE_MAX = 360;
+  PASSING_DISTANCE = 10;
 
   constructor(seed, options) {
     this.options = options || {};
     this.seed = typeof seed === 'string' ? this._stringToInteger(seed) : seed;
-    this.knownHue = [];
-    this.knownSaturation = [];
-    this.knownBrightness = [];
+    this.known = [];
   }
 
   getColor() {
+    const self = this;
     const { brightness, saturation } = this.options;
     const h = this._pickHue();
     const s = this._pickSaturation(h, saturation || 0);
     const b = this._pickBrightness(h, s, brightness || 0);
     const hsl = this._HSVtoHSL([h, s, b]);
 
-    return {
-      hsl: {
-        raw: hsl,
-        formatted: `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
-      }
-    };
+    // Detect color similarity. If values are too close to one another, call
+    // getColor until enough dissimilarity is acheived.
+    if (this.known.length &&
+        this.known.some(v => this._euclideanDistance(v, hsl) < this.PASSING_DISTANCE)) {
+      return this.getColor();
+    } else {
+      this.known.push(hsl);
+      return {
+        hsl: {
+          raw: hsl,
+          formatted: `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
+        }
+      };
+    }
   }
 
   _pickHue = () => {
@@ -35,9 +43,6 @@ export default class toColor {
     // ranges, lookup is grouped in colorDictionary using negative numbers.
     if (hue < 0) hue = this.HUE_MAX + hue;
 
-    hue = this._distribute(this.knownHue, hue, 2);
-
-    this.knownHue.push(hue);
     return hue;
   }
 
@@ -48,9 +53,7 @@ export default class toColor {
     let max = saturationRange[1];
     min = modifier > 0 ? this._clamp(min + modifier, 0, SATURATION_MAX) : min;
     max = modifier < 0 ? this._clamp(max + modifier, 0, SATURATION_MAX) : max;
-    const saturation = this._distribute(this.knownSaturation, this._pseudoRandom([min, max], 1));
-    this.knownSaturation.push(saturation);
-    return saturation;
+    return this._pseudoRandom([min, max]);
   }
   
 
@@ -60,9 +63,7 @@ export default class toColor {
     let max = 100;
     min = modifier > 0 ? this._clamp(min + modifier, 0, BRIGHTNESS_MAX) : min;
     max = modifier < 0 ? this._clamp(max + modifier, 0, BRIGHTNESS_MAX) : max;
-    const brightness = this._distribute(this.knownBrightness, this._pseudoRandom([min, max], 1));
-    this.knownBrightness.push(brightness);
-    return brightness;
+    return this._pseudoRandom([min, max]);
   }
 
   _getMinimumBrightness = (h, s) => {
@@ -90,19 +91,6 @@ export default class toColor {
     this.seed = (this.seed * 9301 + 49297) % 233280;
     const rnd = this.seed / 233280;
     return Math.trunc(min + rnd * (max - min));
-  }
-
-  _distribute = (known, candidate, deviation) => {
-    let distributedValue = candidate;
-
-    // Increment candidate by deviation until deviation from known is false.
-    while (true) {
-      if (known.some(v => Math.abs(distributedValue - v) <= deviation)) {
-        distributedValue = distributedValue + deviation; 
-      } else {
-        return distributedValue;
-      }
-    }
   }
 
   _clamp = (n, min, max) => n <= min ? min : n >= max ? max : n;
@@ -136,6 +124,11 @@ export default class toColor {
       total += string.charCodeAt(i);
     }
     return total;
+  }
+
+  // From https://github.com/Evercoder/d3-color-difference
+  _euclideanDistance = (a, b) => {
+    return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2));
   }
 
   // prettier-ignore
