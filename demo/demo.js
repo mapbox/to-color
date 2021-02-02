@@ -9,8 +9,12 @@ const swatches = document.getElementById('swatches');
   [1234, 6],
   [5678, 6],
   ['mapbox.mapbox-streets-v8', 16],
-  ['mapbox.mapbox-streets-v8', 16, { brightness: -50, saturation: 50 }],
-  ['mapbox.mapbox-streets-v8', 16, { brightness: 50, saturation: -50 }]
+  ['mapbox.mapbox-streets-v8', 16, { saturation: -50 }],
+  ['mapbox.mapbox-streets-v8', 16, { saturation: 50 }],
+  ['mapbox.mapbox-streets-v8', 16, { brightness: -50 }],
+  ['mapbox.mapbox-streets-v8', 16, { brightness: 50 }],
+  ['tristen', 2],
+  ['tristen', 2, { distance: 100 }]
 ].forEach(swatch => {
   const seed = swatch[0];
   const count = swatch[1];

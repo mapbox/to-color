@@ -2,13 +2,13 @@ import toColor from './index';
 
 describe('toColor', () => {
   describe('basic', () => {
-    const color = new toColor('penny');
+    const color = new toColor('tristen');
 
-    test('returns deterministic color on getColor', () => {
+    it('returns deterministic color on getColor', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(107, 92.16%, 74.48%)',
-          raw: [107, 92.16, 74.48]
+          formatted: 'hsl(68, 83.64%, 57.19%)',
+          raw: [68, 83.64, 57.19]
         }
       });
     });
@@ -16,8 +16,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(14, 70.11%, 63.19%)',
-          raw: [14, 70.11, 63.19]
+          formatted: 'hsl(19, 87.04%, 69.12%)',
+          raw: [19, 87.04, 69.12]
         }
       });
     });
@@ -28,21 +28,21 @@ describe('toColor', () => {
     it('works with a number', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(148, 62.77%, 67.75%)',
-          raw: [148, 62.77, 67.75]
+          formatted: 'hsl(148, 62.77%, 67.76%)',
+          raw: [148, 62.77, 67.76]
         }
       });
     });
   });
 
-  describe('options', () => {
+  describe('brightness/saturation', () => {
     const color = new toColor('penny', { brightness: -50, saturation: 50 });
 
-    test('returns deterministic color on getColor', () => {
+    it('returns deterministic color on getColor', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(107, 73.91%, 28.74%)',
-          raw: [107, 73.91, 28.74]
+          formatted: 'hsl(107, 96.07%, 24.48%)',
+          raw: [107, 96.07, 24.48]
         }
       });
     });
@@ -50,11 +50,54 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(14, 72.41%, 31.32%)',
-          raw: [14, 72.41, 31.32]
+          formatted: 'hsl(14, 100%, 19.5%)',
+          raw: [14, 100, 19.5]
         }
       });
     });
   });
 
+  describe('distance', () => {
+    const color = new toColor('tristen', { distance: 100 });
+
+    it('returns deterministic color on getColor', () => {
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(68, 83.64%, 57.19%)',
+          raw: [68, 83.64, 57.19]
+        }
+      });
+    });
+
+    it('returns a different value from the first test when euclidean distance calls for it', () => {
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(179, 74.19%, 69%)',
+          raw: [179, 74.19, 69]
+        }
+      });
+    });
+  });
+
+  describe('known max', () => {
+    const color = new toColor('tristen', { knownMax: 0, distance: 100 });
+
+    it('returns deterministic color on getColor', () => {
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(68, 83.64%, 57.19%)',
+          raw: [68, 83.64, 57.19]
+        }
+      });
+    });
+
+    it('returns a different determinisic value calling getColor again', () => {
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(19, 87.04%, 69.12%)',
+          raw: [19, 87.04, 69.12]
+        }
+      });
+    });
+  });
 });

@@ -1,6 +1,5 @@
 export default class toColor {
   HUE_MAX = 360;
-  PASSING_DISTANCE = 10;
 
   constructor(seed, options) {
     this.options = options || {};
@@ -9,27 +8,43 @@ export default class toColor {
   }
 
   getColor() {
-    const self = this;
-    const { brightness, saturation } = this.options;
+    const { distance, knownMax } = this.options;
     const h = this._pickHue();
-    const s = this._pickSaturation(h, saturation || 0);
-    const b = this._pickBrightness(h, s, brightness || 0);
-    const hsl = this._HSVtoHSL([h, s, b]);
+    const s = this._pickSaturation(h);
+    const b = this._pickBrightness(h, s);
+    const hsl = this._HSVtoHSL(h, s, b);
+    const PASSABLE_DISTANCE = typeof distance !== 'undefined' ? distance : 37; 
+    const KNOWN_MAX = typeof knownMax !== 'undefined' ? knownMax : 20; 
 
     // Detect color similarity. If values are too close to one another, call
     // getColor until enough dissimilarity is acheived.
     if (this.known.length &&
-        this.known.some(v => this._euclideanDistance(v, hsl) < this.PASSING_DISTANCE)) {
+      this.known.length <= KNOWN_MAX &&
+      this.known.some(v => this._euclideanDistance(v, hsl) < PASSABLE_DISTANCE)) {
       return this.getColor();
     } else {
-      this.known.push(hsl);
-      return {
-        hsl: {
-          raw: hsl,
-          formatted: `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
-        }
-      };
+      this.known.push([...hsl]);
+      return this._colorWithModifiers(h, s, b) 
     }
+  }
+
+  _colorWithModifiers = (h, s, b) => {
+    const clamp = (n, min, max) => n <= min ? min : n >= max ? max : n;
+    const { brightness, saturation } = this.options;
+
+    // Modify brightness/saturation if provided
+    s = saturation ? clamp(s + saturation, 0, 100) : s;
+    b = brightness ? clamp(b + brightness, 0, 100) : b;
+
+    // re-run conversion accounting for post modifications to s and b.
+    const hsl = this._HSVtoHSL(h, s, b);
+
+    return {
+      hsl: {
+        raw: hsl,
+        formatted: `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
+      }
+    };
   }
 
   _pickHue = () => {
@@ -46,23 +61,17 @@ export default class toColor {
     return hue;
   }
 
-  _pickSaturation = (h, modifier) => {
-    const SATURATION_MAX = 100;
+  _pickSaturation = (h) => {
     const saturationRange = this._getColorInfo(h)[2];
     let min = saturationRange[0];
     let max = saturationRange[1];
-    min = modifier > 0 ? this._clamp(min + modifier, 0, SATURATION_MAX) : min;
-    max = modifier < 0 ? this._clamp(max + modifier, 0, SATURATION_MAX) : max;
     return this._pseudoRandom([min, max]);
   }
   
 
-  _pickBrightness = (h, s, modifier) => {
-    const BRIGHTNESS_MAX = 100;
+  _pickBrightness = (h, s) => {
     let min = this._getMinimumBrightness(h, s);
     let max = 100;
-    min = modifier > 0 ? this._clamp(min + modifier, 0, BRIGHTNESS_MAX) : min;
-    max = modifier < 0 ? this._clamp(max + modifier, 0, BRIGHTNESS_MAX) : max;
     return this._pseudoRandom([min, max]);
   }
 
@@ -93,8 +102,6 @@ export default class toColor {
     return Math.trunc(min + rnd * (max - min));
   }
 
-  _clamp = (n, min, max) => n <= min ? min : n >= max ? max : n;
-
   _getColorInfo = (hue) => {
     // Red is on both ends of the color spectrum. Map them together:
     if (hue >= 334 && hue <= this.HUE_MAX) {
@@ -104,16 +111,18 @@ export default class toColor {
     return this._colorDictionary.find((c) => hue >= c[0][0] && hue <= c[0][1]);
   }
 
-  _HSVtoHSL = (hsv) => {
+  _HSVtoHSL = (h, s, v) => {
     const round = (num) => Math.trunc((num + Number.EPSILON) * 100) / 100;
-    const h = hsv[0];
-    const s = hsv[1] / 100;
-    const v = hsv[2] / 100;
-    const k = (2 - s) * v;
+    const l = (2 - s / 100) * v / 2;
+    let saturation = s * v / (l < 50 ? l * 2 : 200 - l * 2);
+
+    // Handle division-by-zero
+    if (isNaN(saturation)) saturation = 0;
+
     return [
       h,
-      round((((s * v) / (k < 1 ? k : 2 - k)) * 10000) / 100),
-      round((k / 2) * 100)
+      round(saturation),
+      round(l)
     ];
   }
 
