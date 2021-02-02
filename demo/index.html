@@ -5,7 +5,7 @@
   <meta name='viewport' content='width=device-width, initial-scale=1'>
   <link rel='stylesheet' href='https://api.mapbox.com/mapbox-assembly/mbx/v0.24.0/assembly.min.css'>
   <script src='https://api.mapbox.com/mapbox-assembly/mbx/v0.28.2/assembly.js'></script>
-  <script src='./demo.js' type='module'></script>
+  <script src='to-color.js'></script>
 </head>
 <body class="bg-gray-faint limiter">
   <div class="px36 py36">
@@ -15,5 +15,52 @@
     </header>
     <div id="swatches" class="grid grid--gut12 txt-mono"></div>
   </div>
+  <script>
+    const wrapOrNah = val => typeof val === 'string' ? `'${val}'` : val;
+    const swatches = document.getElementById('swatches');
+
+    [
+      ['mouse', 6],
+      ['deli', 6],
+      [1234, 6],
+      [5678, 6],
+      ['mapbox.mapbox-streets-v8', 16],
+      ['mapbox.mapbox-streets-v8', 16, { saturation: -50 }],
+      ['mapbox.mapbox-streets-v8', 16, { saturation: 50 }],
+      ['mapbox.mapbox-streets-v8', 16, { brightness: -50 }],
+      ['mapbox.mapbox-streets-v8', 16, { brightness: 50 }],
+      ['tristen', 2],
+      ['tristen', 2, { distance: 100 }]
+    ].forEach(swatch => {
+      const seed = swatch[0];
+      const count = swatch[1];
+      const options = swatch[2];
+
+      const container = document.createElement('div');
+      const swatchSnippet = document.createElement('div');
+      swatchSnippet.classList = 'bg-gray-dark color-gray-light txt-mono px12 py12 round-b txt-truncate';
+      const swatchContainer = document.createElement('div');
+      swatchContainer.classList = 'round-t h120 txt-xs txt-bold flex-parent scroll-hidden';
+      const s = new toColor(seed, options || {});
+
+      container.classList = `col col--12 ${count < 8 ? 'col--6-ml' : ''} mb12`;
+
+      for (let i = 0; i < count; i++) {
+        const { hsl } = s.getColor();
+        const swatchContainerItem = document.createElement('div');
+        swatchContainerItem.classList = `px12 py12 flex-child flex-child--grow h120`;
+        swatchContainerItem.textContent = swatchContainerItem.title = swatchContainerItem.style.backgroundColor = hsl.formatted;
+        swatchContainer.appendChild(swatchContainerItem);
+      };
+
+      let optionsString = options ? `, ${JSON.stringify(options)}` : '';
+      let textContent = `${wrapOrNah(seed)}`
+      swatchSnippet.textContent = swatchSnippet.title = `new toColor(${textContent}${optionsString});`;
+
+      container.appendChild(swatchContainer);
+      container.appendChild(swatchSnippet);
+      swatches.appendChild(container); 
+    });
+  </script>
 </body>
 </html>

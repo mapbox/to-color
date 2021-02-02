@@ -4,10 +4,12 @@
   "description": "Randomly generate a well distributed color palette that's deterministic.",
   "main": "dist/to-color.js",
   "scripts": {
-    "start": "serve",
-    "test": "eslint index.js && jest",
-    "build": "rollup -c && rm -rf _site && mkdir -p _site && cp -R demo/ _site/",
-    "format": "prettier --write 'index.js'",
+    "start:server": "serve demo",
+    "start": "run-p start:server watch",
+    "watch": "watch 'npm run compile' src",
+    "compile": "rollup -c",
+    "build": "npm run compile && rm -rf _site && mkdir -p _site && cp -R demo/ _site/",
+    "test": "eslint src && jest",
     "jest-watch": "jest --watch"
   },
   "keywords": [
@@ -29,10 +31,12 @@
     "husky": "^4.3.8",
     "jest": "^26.6.3",
     "lint-staged": "^10.5.3",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "rollup": "^2.38.1",
     "rollup-plugin-babel": "^4.4.0",
-    "serve": "^11.3.2"
+    "serve": "^11.3.2",
+    "watch": "^1.0.2"
   },
   "babel": {
     "presets": [

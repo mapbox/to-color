@@ -1,4 +1,6 @@
 node_modules/
 _site/
 dist/
+demo/to-color.js
+demo/to-color.js.map
 .DS_Store
