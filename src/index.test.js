@@ -26,8 +26,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(19, 87.04%, 69.12%)',
-          raw: [19, 87.04, 69.12]
+          formatted: 'hsl(179, 74.19%, 69%)',
+          raw: [179, 74.19, 69]
         }
       });
     });
@@ -67,23 +67,18 @@ describe('toColor', () => {
     });
   });
 
-  describe('distance', () => {
-    const color = new toColor('tristen', { distance: 100 });
+  describe('distribution drops as recursion of getColor increases', () => {
+    const color = new toColor('tristen');
 
-    it('returns deterministic color on getColor', () => {
-      expect(color.getColor()).toEqual({
+    it('calls getColor 1000 times', () => {
+      let finalValue;
+      for (let i = 0; i !== 1000; i++) {
+        finalValue = color.getColor();
+      }
+      expect(finalValue).toEqual({
         hsl: {
-          formatted: 'hsl(68, 83.64%, 57.19%)',
-          raw: [68, 83.64, 57.19]
-        }
-      });
-    });
-
-    it('returns a different value from the first test when euclidean distance calls for it', () => {
-      expect(color.getColor()).toEqual({
-        hsl: {
-          formatted: 'hsl(179, 74.19%, 69%)',
-          raw: [179, 74.19, 69]
+          formatted: 'hsl(188, 77.1%, 73.79%)',
+          raw: [188, 77.1, 73.79]
         }
       });
     });
