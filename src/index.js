@@ -3,18 +3,23 @@ export default class toColor {
 
   constructor(seed, options) {
     this.options = options || {};
-    this.seed = typeof seed === 'string' ? this._stringToInteger(seed) : seed;
+    if (typeof seed === 'string' || typeof seed === 'number') {
+      this.seed = typeof seed === 'string' ? this._stringToInteger(seed) : seed;
+    } else {
+      throw new TypeError('Seed value must be a number or string');
+    }
+
     this.known = [];
   }
 
   getColor() {
-    const { distance, knownMax } = this.options;
+    const { distance } = this.options;
     const h = this._pickHue();
     const s = this._pickSaturation(h);
     const b = this._pickBrightness(h, s);
     const hsl = this._HSVtoHSL(h, s, b);
     const PASSABLE_DISTANCE = typeof distance !== 'undefined' ? distance : 37; 
-    const KNOWN_MAX = typeof knownMax !== 'undefined' ? knownMax : 20; 
+    const KNOWN_MAX = 20; 
 
     // Detect color similarity. If values are too close to one another, call
     // getColor until enough dissimilarity is acheived.
@@ -24,6 +29,8 @@ export default class toColor {
       return this.getColor();
     } else {
       this.known.push([...hsl]);
+      // Apply modifiers after distribution check + regeneration to ensure 
+      // colors with brightness/saturation adjustments remain the same.
       return this._colorWithModifiers(h, s, b) 
     }
   }

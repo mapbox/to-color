@@ -1,6 +1,16 @@
 import toColor from './index';
 
 describe('toColor', () => {
+  describe('throws', () => {
+    it('invalid seed value passed', () => {
+      try {
+        new toColor([]);
+      } catch (err) {
+        expect(err).toEqual(new TypeError('Seed value must be a number or string'));
+      }
+    });
+  });
+
   describe('basic', () => {
     const color = new toColor('tristen');
 
