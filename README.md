@@ -21,7 +21,7 @@ const color = new toColor('tmcw');
 // Or a number
 // const color = new toColor(1234);
 // Or with options
-// const color = new toColor('tmcw', { brightness: 25, saturation: -10 });
+// const color = new toColor('tmcw', { brightness: 0.25, saturation: 1.1 });
 
 const { hsl } = color.getColor();
 
@@ -50,8 +50,8 @@ Returns
 
 | Option | Value | Default | Description |
 | --- | --- | --- | --- |
-| `brightness` | `Number` | `undefined` | Adjusts brightness from the derived min/max range. |
-| `saturation` | `Number` | `undefined` | Adjusts saturation from the derived min/max range. |
+| `brightness` | `Number` | `undefined` | Adjusts brightness percentage from the derived min/max range. |
+| `saturation` | `Number` | `undefined` | Adjusts saturation percentage from the derived min/max range. |
 
 ### Developing
 

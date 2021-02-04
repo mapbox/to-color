@@ -24,7 +24,7 @@ export default class toColor {
 
     // The larger `count` grows, we need to divide actual distance to avoid
     // hitting a maxiumum call stack error.
-    const ACTUAL_DISTANCE = PASSABLE_DISTANCE / Math.pow(1.25, count);
+    const ACTUAL_DISTANCE = PASSABLE_DISTANCE / Math.pow(1.05, count);
 
     // Detect color similarity. If values are too close to one another, call
     // getColor until enough dissimilarity is achieved.
@@ -42,11 +42,12 @@ export default class toColor {
 
   _colorWithModifiers = (h, s, b) => {
     const clamp = (n, min, max) => n <= min ? min : n >= max ? max : n;
+    const percentage = (n, per) => ((n / 100) * per) * 100;
     const { brightness, saturation } = this.options;
 
     // Modify brightness/saturation if provided
-    s = saturation ? clamp(s + saturation, 0, 100) : s;
-    b = brightness ? clamp(b + brightness, 0, 100) : b;
+    s = saturation ? clamp(percentage(saturation, s), 0, 100) : s;
+    b = brightness ? clamp(percentage(brightness, b), 0, 100) : b;
 
     // re-run conversion accounting for post modifications to s and b.
     const hsl = this._HSVtoHSL(h, s, b);
@@ -149,20 +150,47 @@ export default class toColor {
     return total;
   }
 
+  // Color dictionary is a collection of subjective values, each containing:
+  //  - Hue range for a given color
+  //  - An array of min/max ranges representing appropriate brightness bounds.
+  //  - A min/max saturation range a hue should stay within.
+
   // prettier-ignore
   _colorDictionary = [
-    [[-26, 18], [[20, 100], [30, 92], [40, 89], [50, 85], [60, 78], [70, 70], [80, 60], [90, 55], [100, 50]]], // red
-    [[18, 46], [[20, 100], [30, 93], [40, 88], [50, 86], [60, 85], [70, 70], [100, 70]]], // orange
-    [[46, 62], [[25, 100], [40, 94], [50, 89], [60, 86], [70, 84], [80, 82], [90, 80], [100, 75]]], // yellow
-    [[62, 178], [[30, 100], [40, 90], [50, 85], [60, 81], [70, 74], [80, 64], [90, 50], [100, 40]]], // green
-    [[178, 257], [[20, 100], [30, 86], [40, 80], [50, 74], [60, 60], [70, 52], [80, 44], [90, 39], [100, 35]]], // blue
-    [[257, 282], [[20, 100], [30, 87], [40, 79], [50, 70], [60, 65], [70, 59], [80, 52], [90, 45], [100, 42]]], // purple
-    [[282, 334], [[20, 100], [30, 90], [40, 86], [60, 84], [80, 80], [90, 75], [100, 73]]] // pink
-  ].map(color => {
-    const lowerBounds = color[1];
-    const sMin = lowerBounds[0][0];
-    const sMax = lowerBounds[lowerBounds.length - 1][0];
-    color.push([sMin, sMax]);
-    return color;
-  })
+    [
+      [-26, 18], // red
+      [[20, 100], [30, 92], [40, 89], [50, 85], [60, 78], [70, 70], [80, 60], [90, 55], [100, 50]],
+      [20, 100]
+    ],
+    [
+      [18, 46], // orange
+      [[20, 100], [30, 93], [40, 88], [50, 86], [60, 85], [70, 70], [100, 70]],
+      [20, 100]
+    ],
+    [
+      [46, 62], // yellow
+      [[25, 100], [40, 94], [50, 89], [60, 86], [70, 84], [80, 82], [90, 80], [100, 75]],
+      [25, 100]
+    ],
+    [
+      [62, 178], // green
+      [[30, 100], [40, 90], [50, 85], [60, 81], [70, 74], [80, 64], [90, 50], [100, 40]],
+      [30, 100]
+    ],
+    [
+      [178, 257], // blue
+      [[20, 100], [30, 86], [40, 80], [50, 74], [60, 60], [70, 52], [80, 44], [90, 39], [100, 35]],
+      [20, 100]
+    ],
+    [
+      [257, 282], // purple
+      [[20, 100], [30, 87], [40, 79], [50, 70], [60, 65], [70, 59], [80, 52], [90, 45], [100, 42]],
+      [20, 100]
+    ],
+    [
+      [282, 334], // pink
+      [[20, 100], [30, 90], [40, 86], [60, 84], [80, 80], [90, 75], [100, 73]],
+      [20, 100]
+    ]
+  ];
 }

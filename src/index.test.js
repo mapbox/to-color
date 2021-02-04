@@ -26,8 +26,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(179, 74.19%, 69%)',
-          raw: [179, 74.19, 69]
+          formatted: 'hsl(326, 63.41%, 53.53%)',
+          raw: [326, 63.41, 53.53]
         }
       });
     });
@@ -46,13 +46,13 @@ describe('toColor', () => {
   });
 
   describe('brightness/saturation', () => {
-    const color = new toColor('penny', { brightness: -50, saturation: 50 });
+    const color = new toColor('penny', { brightness: 0.5, saturation: 0.5 });
 
     it('returns deterministic color on getColor', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(107, 96.07%, 24.48%)',
-          raw: [107, 96.07, 24.48]
+          formatted: 'hsl(107, 13.63%, 43.12%)',
+          raw: [107, 13.63, 43.12]
         }
       });
     });
@@ -60,8 +60,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(14, 100%, 19.5%)',
-          raw: [14, 100, 19.5]
+          formatted: 'hsl(14, 16.95%, 38.04%)',
+          raw: [14, 16.95, 38.04]
         }
       });
     });
@@ -77,8 +77,8 @@ describe('toColor', () => {
       }
       expect(finalValue).toEqual({
         hsl: {
-          formatted: 'hsl(188, 77.1%, 73.79%)',
-          raw: [188, 77.1, 73.79]
+          formatted: 'hsl(277, 48.97%, 50.99%)',
+          raw: [277, 48.97, 50.99]
         }
       });
     });
