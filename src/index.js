@@ -27,7 +27,7 @@ export default class toColor {
     const ACTUAL_DISTANCE = PASSABLE_DISTANCE / Math.pow(1.25, count);
 
     // Detect color similarity. If values are too close to one another, call
-    // getColor until enough dissimilarity is acheived.
+    // getColor until enough dissimilarity is achieved.
     if (this.known.length &&
         this.known.some(v => differenceCiede2000(v, formatted) < ACTUAL_DISTANCE)) {
       count++
