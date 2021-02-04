@@ -1,3 +1,5 @@
+import { differenceCiede2000 } from 'd3-color-difference';
+
 export default class toColor {
   HUE_MAX = 360;
 
@@ -12,23 +14,26 @@ export default class toColor {
     this.known = [];
   }
 
-  getColor() {
-    const { distance } = this.options;
+  getColor(count = 0) {
     const h = this._pickHue();
     const s = this._pickSaturation(h);
     const b = this._pickBrightness(h, s);
     const hsl = this._HSVtoHSL(h, s, b);
-    const PASSABLE_DISTANCE = typeof distance !== 'undefined' ? distance : 37; 
-    const KNOWN_MAX = 20; 
+    const formatted = this._formatHSL(hsl);
+    const PASSABLE_DISTANCE = 50; 
+
+    // The larger `count` grows, we need to divide actual distance to avoid
+    // hitting a maxiumum call stack error.
+    const ACTUAL_DISTANCE = PASSABLE_DISTANCE / Math.pow(1.25, count);
 
     // Detect color similarity. If values are too close to one another, call
     // getColor until enough dissimilarity is acheived.
     if (this.known.length &&
-      this.known.length <= KNOWN_MAX &&
-      this.known.some(v => this._euclideanDistance(v, hsl) < PASSABLE_DISTANCE)) {
-      return this.getColor();
+        this.known.some(v => differenceCiede2000(v, formatted) < ACTUAL_DISTANCE)) {
+      count++
+      return this.getColor(count);
     } else {
-      this.known.push([...hsl]);
+      this.known.push(formatted);
       // Apply modifiers after distribution check + regeneration to ensure 
       // colors with brightness/saturation adjustments remain the same.
       return this._colorWithModifiers(h, s, b) 
@@ -49,10 +54,12 @@ export default class toColor {
     return {
       hsl: {
         raw: hsl,
-        formatted: `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
+        formatted: this._formatHSL(hsl)
       }
     };
   }
+  
+  _formatHSL = hsl => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
 
   _pickHue = () => {
     let hue = this._pseudoRandom([0, this.HUE_MAX]);
@@ -140,11 +147,6 @@ export default class toColor {
       total += string.charCodeAt(i);
     }
     return total;
-  }
-
-  // From https://github.com/Evercoder/d3-color-difference
-  _euclideanDistance = (a, b) => {
-    return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2));
   }
 
   // prettier-ignore

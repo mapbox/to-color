@@ -52,7 +52,6 @@ Returns
 | --- | --- | --- | --- |
 | `brightness` | `Number` | `undefined` | Adjusts brightness from the derived min/max range. |
 | `saturation` | `Number` | `undefined` | Adjusts saturation from the derived min/max range. |
-| `distance` | `Number` | `37` | Adjusts color similarity check. By default, colors should have a euclidean distance of 37 between themselves. **Note:** increasing this value can cause a maximum call stack error as the program recursively tries to find color distances that don't match the value set. |
 
 ### Developing
 

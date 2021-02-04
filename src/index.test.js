@@ -88,26 +88,4 @@ describe('toColor', () => {
       });
     });
   });
-
-  describe('known max', () => {
-    const color = new toColor('tristen', { knownMax: 0, distance: 100 });
-
-    it('returns deterministic color on getColor', () => {
-      expect(color.getColor()).toEqual({
-        hsl: {
-          formatted: 'hsl(68, 83.64%, 57.19%)',
-          raw: [68, 83.64, 57.19]
-        }
-      });
-    });
-
-    it('returns a different determinisic value calling getColor again', () => {
-      expect(color.getColor()).toEqual({
-        hsl: {
-          formatted: 'hsl(19, 87.04%, 69.12%)',
-          raw: [19, 87.04, 69.12]
-        }
-      });
-    });
-  });
 });
