@@ -20,7 +20,7 @@ export default class toColor {
     const b = this._pickBrightness(h, s);
     const hsl = this._HSVtoHSL(h, s, b);
     const formatted = this._formatHSL(hsl);
-    const PASSABLE_DISTANCE = 50; 
+    const PASSABLE_DISTANCE = 60;
 
     // The larger `count` grows, we need to divide actual distance to avoid
     // hitting a maxiumum call stack error.
@@ -34,9 +34,9 @@ export default class toColor {
       return this.getColor(count);
     } else {
       this.known.push(formatted);
-      // Apply modifiers after distribution check + regeneration to ensure 
+      // Apply modifiers after distribution check + regeneration to ensure
       // colors with brightness/saturation adjustments remain the same.
-      return this._colorWithModifiers(h, s, b) 
+      return this._colorWithModifiers(h, s, b)
     }
   }
 
@@ -59,7 +59,7 @@ export default class toColor {
       }
     };
   }
-  
+
   _formatHSL = hsl => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
 
   _pickHue = () => {
@@ -82,7 +82,7 @@ export default class toColor {
     let max = saturationRange[1];
     return this._pseudoRandom([min, max]);
   }
-  
+
 
   _pickBrightness = (h, s) => {
     let min = this._getMinimumBrightness(h, s);

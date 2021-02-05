@@ -60,8 +60,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(14, 16.95%, 38.04%)',
-          raw: [14, 16.95, 38.04]
+          formatted: 'hsl(347, 17.64%, 34.85%)',
+          raw: [347, 17.64, 34.85]
         }
       });
     });
@@ -77,8 +77,8 @@ describe('toColor', () => {
       }
       expect(finalValue).toEqual({
         hsl: {
-          formatted: 'hsl(277, 48.97%, 50.99%)',
-          raw: [277, 48.97, 50.99]
+          formatted: 'hsl(7, 61.34%, 61.2%)',
+          raw: [7, 61.34, 61.2]
         }
       });
     });
