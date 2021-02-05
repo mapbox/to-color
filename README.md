@@ -1,28 +1,68 @@
-## `toColor`
+`@mapbox/to-color`
+===
 
-[![build status](https://secure.travis-ci.org/mapbox/to-color.svg)](http://travis-ci.org/mapbox/to-color)
+Procedurally generate a deterministic, perceptually distributed color palette.
+
+[![Build Status](https://travis-ci.org/mapbox/to-color.svg)](https://travis-ci.org/mapbox/to-color)
 
 ### install
 
-    npm install @mapbox/to-color
-
-## API
-
-`toColor`
-
-Given an arbitrary string, create a rgba color
-of a specified opacity to identify it visually.
-
-### Parameters
-
-* `str` **`string`** any arbitrary string
-* `opacity` **`number`** an opacity value from 0 to 1
-
-
-### Examples
-
-```js
-toColor('tom') //= 'rgba(187,153,68,0.75)'
+```bash
+npm install @mapbox/to-color
 ```
 
-Returns `string` output color
+### Usage
+
+```js
+import toColor from '@mapbox/to-color'
+
+const color = new toColor('tmcw');
+
+// Or a number
+// const color = new toColor(1234);
+// Or with options
+// const color = new toColor('tmcw', { brightness: 0.25, saturation: 1.1 });
+
+const { hsl } = color.getColor();
+
+/*
+Returns
+
+{
+  raw: [314, 97.95, 50.98],
+  formatted: 'hsl(314, 97.95%, 50.98%)'
+}
+*/
+
+const { hsl } = color.getColor();
+
+/*
+Returns
+
+{
+  raw: [2, 78.26, 54],
+  formatted: 'hsl(2, 78.26%, 54%)'
+}
+*/
+```
+
+### Options
+
+| Option | Value | Default | Description |
+| --- | --- | --- | --- |
+| `brightness` | `Number` | `undefined` | Adjusts brightness percentage from the derived min/max range. |
+| `saturation` | `Number` | `undefined` | Adjusts saturation percentage from the derived min/max range. |
+
+### Developing
+
+```bash
+# Demo site
+npm install & npm start
+
+# Run tests
+npm run test
+```
+
+---
+
+**Credit** v2 is adapted from [randomColor](https://github.com/davidmerfield/randomColor).
