@@ -3,6 +3,16 @@ import { differenceCiede2000 } from 'd3-color-difference';
 export default class toColor {
   HUE_MAX = 360;
 
+  hues = {
+    red: [-26, 18],
+    orange: [18, 46],
+    yellow: [46, 62],
+    green: [62, 178],
+    blue: [178, 257],
+    purple: [257, 282],
+    pink: [282, 334]
+  }
+
   constructor(seed, options) {
     this.options = options || {};
     if (typeof seed === 'string' || typeof seed === 'number') {
@@ -70,23 +80,34 @@ export default class toColor {
     hue = this._pseudoRandom([min, max]);
 
     // Red is on both ends of the color spectrum. Instead of storing red as two
-    // ranges, lookup is grouped in colorDictionary using negative numbers.
+    // ranges, lookup is grouped in `this.hue` as negative numbers.
     if (hue < 0) hue = this.HUE_MAX + hue;
+
+    // Limit the max of some hues if the option is passed.
+    const { limit } = this.options;
+  
+    if (limit && limit.length) {
+      for (let i = 0; i !== limit.length; i++) {
+        const hueRange = this.hues?.[limit[i]];
+        if (hueRange && hue > hueRange[0] && hue <= hueRange[1]) {
+          hue = Math.trunc(hue / 1.25);
+        }
+      };
+    }
 
     return hue;
   }
 
   _pickSaturation = (h) => {
     const saturationRange = this._getColorInfo(h)[2];
-    let min = saturationRange[0];
-    let max = saturationRange[1];
+    const min = saturationRange[0];
+    const max = saturationRange[1];
     return this._pseudoRandom([min, max]);
   }
 
-
   _pickBrightness = (h, s) => {
-    let min = this._getMinimumBrightness(h, s);
-    let max = 100;
+    const min = this._getMinimumBrightness(h, s);
+    const max = 100;
     return this._pseudoRandom([min, max]);
   }
 
@@ -158,37 +179,37 @@ export default class toColor {
   // prettier-ignore
   _colorDictionary = [
     [
-      [-26, 18], // red
+      this.hues.red,
       [[20, 100], [30, 92], [40, 89], [50, 85], [60, 78], [70, 70], [80, 60], [90, 55], [100, 50]],
       [20, 100]
     ],
     [
-      [18, 46], // orange
+      this.hues.orange,
       [[20, 100], [30, 93], [40, 88], [50, 86], [60, 85], [70, 70], [100, 70]],
       [20, 100]
     ],
     [
-      [46, 62], // yellow
+      this.hues.yellow,
       [[25, 100], [40, 94], [50, 89], [60, 86], [70, 84], [80, 82], [90, 80], [100, 75]],
       [25, 100]
     ],
     [
-      [62, 178], // green
+      this.hues.green,
       [[30, 100], [40, 90], [50, 85], [60, 81], [70, 74], [80, 64], [90, 50], [100, 40]],
       [30, 100]
     ],
     [
-      [178, 257], // blue
+      this.hues.blue,
       [[20, 100], [30, 86], [40, 80], [50, 74], [60, 60], [70, 52], [80, 44], [90, 39], [100, 35]],
       [20, 100]
     ],
     [
-      [257, 282], // purple
+      this.hues.purple,
       [[20, 100], [30, 87], [40, 79], [50, 70], [60, 65], [70, 59], [80, 52], [90, 45], [100, 42]],
       [20, 100]
     ],
     [
-      [282, 334], // pink
+      this.hues.pink,
       [[20, 100], [30, 90], [40, 86], [60, 84], [80, 80], [90, 75], [100, 73]],
       [20, 100]
     ]
