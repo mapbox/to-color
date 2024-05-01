@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/to-color",
-  "version": "2.1.0",
+  "version": "2.1.0-dev.0",
   "description": "Procedurally generate a deterministic, perceptually distributed color palette.",
   "main": "dist/to-color.js",
   "scripts": {
