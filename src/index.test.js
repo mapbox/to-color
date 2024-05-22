@@ -82,8 +82,8 @@ describe('toColor', () => {
       const color = new toColor('hi', { limit: ['blue'] });
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(156, 75.43%, 48.45%)',
-          raw: [156, 75.43, 48.45]
+          formatted: 'hsl(292, 68.83%, 58.28%)',
+          raw: [292, 68.83, 58.28]
         }
       });
     });
