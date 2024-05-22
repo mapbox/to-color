@@ -90,7 +90,7 @@ export default class toColor {
       for (let i = 0; i !== limit.length; i++) {
         const hueRange = this.hues?.[limit[i]];
         if (hueRange && hue > hueRange[0] && hue <= hueRange[1]) {
-          hue = Math.trunc(hue / 1.25);
+          return this._pickHue();
         }
       };
     }
