@@ -50,8 +50,9 @@ Returns
 
 | Option | Value | Default | Description |
 | --- | --- | --- | --- |
-| `brightness` | `Number` | `undefined` | Adjusts brightness percentage from the derived min/max range. |
-| `saturation` | `Number` | `undefined` | Adjusts saturation percentage from the derived min/max range. |
+| `brightness` | `Number` | 0 | Adjusts brightness percentage from the derived min/max range. |
+| `saturation` | `Number` | 0 | Adjusts saturation percentage from the derived min/max range. |
+| `limit` | `Array` | `[]` | Limits the higher range of hues for a given color. Options can be `red`, `orange`, `yellow`, `green`, `blue`, `purple`, or `pink`. |
 
 ### Developing
 

@@ -67,6 +67,28 @@ describe('toColor', () => {
     });
   });
 
+  describe('limit', () => {
+    it('returns a blue color', () => {
+      const color = new toColor('hi');
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(195, 72.41%, 46.98%)',
+          raw: [195, 72.41, 46.98]
+        }
+      });
+    });
+
+    it('returns a different color as blue is limited', () => {
+      const color = new toColor('hi', { limit: ['blue'] });
+      expect(color.getColor()).toEqual({
+        hsl: {
+          formatted: 'hsl(292, 68.83%, 58.28%)',
+          raw: [292, 68.83, 58.28]
+        }
+      });
+    });
+  });
+
   describe('distribution drops as recursion of getColor increases', () => {
     const color = new toColor('tristen');
 
