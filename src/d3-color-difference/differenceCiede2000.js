@@ -7,7 +7,7 @@ import { lab } from 'd3-color';
 	http://www2.ece.rochester.edu/~gsharma/ciede2000/
  */
 
-export function differenceCiede2000(kL, kC, kH) {
+function differenceCiede2000(kL, kC, kH) {
   kL = kL !== undefined ? kL : 1;
   kC = kC !== undefined ? kC : 1;
   kH = kH !== undefined ? kH : 1;
@@ -96,3 +96,10 @@ export function differenceCiede2000(kL, kC, kH) {
     );
   };
 }
+
+var differenceCiede2000Default = differenceCiede2000();
+
+export {
+  differenceCiede2000Default as default,
+  differenceCiede2000 as differenceCiede2000Weighted
+};

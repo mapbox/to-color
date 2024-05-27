@@ -1,4 +1,4 @@
-import { differenceCiede2000 } from './differenceCiede2000';
+import { differenceCiede2000 } from './d3-color-difference';
 
 export default class toColor {
   HUE_MAX = 360;

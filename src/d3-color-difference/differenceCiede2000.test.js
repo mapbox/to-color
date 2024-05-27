@@ -1,4 +1,4 @@
-import { differenceCiede2000 } from './differenceCiede2000';
+import { differenceCiede2000 } from '.';
 import { lab } from 'd3-color';
 
 // Test data from: http://www2.ece.rochester.edu/~gsharma/ciede2000/
@@ -45,16 +45,28 @@ function round(value, precision) {
 
 describe('differenceCiede2000', () => {
   it('Computes correctly the Sharma test data', () => {
-    testdata.forEach((line) => {
-      const l1 = lab(line[0], line[1], line[2]);
-      const l2 = lab(line[3], line[4], line[5]);
-      const expected = +line[6];
+    for (var i = 0; i < testdata.length; i++) {
+      let line = testdata[i];
 
-      test(`differenceCiede2000 for ${line.slice(0, 6).join(', ')}`, () => {
-        expect(round(differenceCiede2000(l1, l2), 4)).toBe(expected);
-        // test symmetry
-        expect(round(differenceCiede2000(l2, l1), 4)).toBe(expected);
-      });
-    });
+      expect(
+        round(
+          differenceCiede2000(
+            lab(line[0], line[1], line[2]),
+            lab(line[3], line[4], line[5])
+          ),
+          4
+        )
+      ).toBe(+line[6]);
+
+      expect(
+        round(
+          differenceCiede2000(
+            lab(line[3], line[4], line[5]),
+            lab(line[0], line[1], line[2])
+          ),
+          4
+        )
+      ).toBe(+line[6]);
+    }
   });
 });
