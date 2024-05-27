@@ -1,4 +1,5 @@
-import { differenceCiede2000 } from 'd3-color-difference';
+import { diff } from 'color-diff';
+import { hsl as d3Hsl } from 'd3-color';
 
 export default class toColor {
   HUE_MAX = 360;
@@ -11,7 +12,7 @@ export default class toColor {
     blue: [178, 257],
     purple: [257, 282],
     pink: [282, 334]
-  }
+  };
 
   constructor(seed, options) {
     this.options = options || {};
@@ -29,7 +30,8 @@ export default class toColor {
     const s = this._pickSaturation(h);
     const b = this._pickBrightness(h, s);
     const hsl = this._HSVtoHSL(h, s, b);
-    const formatted = this._formatHSL(hsl);
+    const hslColor = d3Hsl(hsl[0], hsl[1], hsl[2]);
+    const rgbColor = hslColor.rgb();
     const PASSABLE_DISTANCE = 60;
 
     // The larger `count` grows, we need to divide actual distance to avoid
@@ -38,21 +40,23 @@ export default class toColor {
 
     // Detect color similarity. If values are too close to one another, call
     // getColor until enough dissimilarity is achieved.
-    if (this.known.length &&
-        this.known.some(v => differenceCiede2000(v, formatted) < ACTUAL_DISTANCE)) {
-      count++
+    if (
+      this.known.length &&
+      this.known.some((v) => diff(v, rgbColor) < ACTUAL_DISTANCE)
+    ) {
+      count++;
       return this.getColor(count);
     } else {
-      this.known.push(formatted);
+      this.known.push(rgbColor);
       // Apply modifiers after distribution check + regeneration to ensure
       // colors with brightness/saturation adjustments remain the same.
-      return this._colorWithModifiers(h, s, b)
+      return this._colorWithModifiers(h, s, b);
     }
   }
 
   _colorWithModifiers = (h, s, b) => {
-    const clamp = (n, min, max) => n <= min ? min : n >= max ? max : n;
-    const percentage = (n, per) => ((n / 100) * per) * 100;
+    const clamp = (n, min, max) => (n <= min ? min : n >= max ? max : n);
+    const percentage = (n, per) => (n / 100) * per * 100;
     const { brightness, saturation } = this.options;
 
     // Modify brightness/saturation if provided
@@ -68,9 +72,9 @@ export default class toColor {
         formatted: this._formatHSL(hsl)
       }
     };
-  }
+  };
 
-  _formatHSL = hsl => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`
+  _formatHSL = (hsl) => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
 
   _pickHue = () => {
     let hue = this._pseudoRandom([0, this.HUE_MAX]);
@@ -85,31 +89,31 @@ export default class toColor {
 
     // Limit the max of some hues if the option is passed.
     const { limit } = this.options;
-  
+
     if (limit && limit.length) {
       for (let i = 0; i !== limit.length; i++) {
         const hueRange = this.hues?.[limit[i]];
         if (hueRange && hue > hueRange[0] && hue <= hueRange[1]) {
           return this._pickHue();
         }
-      };
+      }
     }
 
     return hue;
-  }
+  };
 
   _pickSaturation = (h) => {
     const saturationRange = this._getColorInfo(h)[2];
     const min = saturationRange[0];
     const max = saturationRange[1];
     return this._pseudoRandom([min, max]);
-  }
+  };
 
   _pickBrightness = (h, s) => {
     const min = this._getMinimumBrightness(h, s);
     const max = 100;
     return this._pseudoRandom([min, max]);
-  }
+  };
 
   _getMinimumBrightness = (h, s) => {
     const lowerBounds = this._getColorInfo(h)[1];
@@ -125,7 +129,7 @@ export default class toColor {
       }
     }
     return 0;
-  }
+  };
 
   // A linear congruential generator (LCG) algorithm that yields a sequence of
   // pseudo-randomized numbers calculated with a discontinuous piecewise linear
@@ -136,7 +140,7 @@ export default class toColor {
     this.seed = (this.seed * 9301 + 49297) % 233280;
     const rnd = this.seed / 233280;
     return Math.trunc(min + rnd * (max - min));
-  }
+  };
 
   _getColorInfo = (hue) => {
     // Red is on both ends of the color spectrum. Map them together:
@@ -145,22 +149,18 @@ export default class toColor {
     }
 
     return this._colorDictionary.find((c) => hue >= c[0][0] && hue <= c[0][1]);
-  }
+  };
 
   _HSVtoHSL = (h, s, v) => {
     const round = (num) => Math.trunc((num + Number.EPSILON) * 100) / 100;
-    const l = (2 - s / 100) * v / 2;
-    let saturation = s * v / (l < 50 ? l * 2 : 200 - l * 2);
+    const l = ((2 - s / 100) * v) / 2;
+    let saturation = (s * v) / (l < 50 ? l * 2 : 200 - l * 2);
 
     // Handle division-by-zero
     if (isNaN(saturation)) saturation = 0;
 
-    return [
-      h,
-      round(saturation),
-      round(l)
-    ];
-  }
+    return [h, round(saturation), round(l)];
+  };
 
   _stringToInteger = (string) => {
     let total = 0;
@@ -169,7 +169,7 @@ export default class toColor {
       total += string.charCodeAt(i);
     }
     return total;
-  }
+  };
 
   // Color dictionary is a collection of subjective values, each containing:
   //  - Hue range for a given color
