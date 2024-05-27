@@ -1,5 +1,4 @@
-import { diff } from 'color-diff';
-import { hsl as d3Hsl } from 'd3-color';
+import { differenceCiede2000 } from './differenceCiede2000';
 
 export default class toColor {
   HUE_MAX = 360;
@@ -30,8 +29,7 @@ export default class toColor {
     const s = this._pickSaturation(h);
     const b = this._pickBrightness(h, s);
     const hsl = this._HSVtoHSL(h, s, b);
-    const hslColor = d3Hsl(hsl[0], hsl[1], hsl[2]);
-    const rgbColor = hslColor.rgb();
+    const formatted = this._formatHSL(hsl);
     const PASSABLE_DISTANCE = 60;
 
     // The larger `count` grows, we need to divide actual distance to avoid
@@ -42,12 +40,14 @@ export default class toColor {
     // getColor until enough dissimilarity is achieved.
     if (
       this.known.length &&
-      this.known.some((v) => diff(v, rgbColor) < ACTUAL_DISTANCE)
+      this.known.some(
+        (v) => differenceCiede2000(v, formatted) < ACTUAL_DISTANCE
+      )
     ) {
       count++;
       return this.getColor(count);
     } else {
-      this.known.push(rgbColor);
+      this.known.push(formatted);
       // Apply modifiers after distribution check + regeneration to ensure
       // colors with brightness/saturation adjustments remain the same.
       return this._colorWithModifiers(h, s, b);
