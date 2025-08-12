@@ -42,7 +42,9 @@ export default class toColor {
     // getColor until enough dissimilarity is achieved.
     if (
       this.known.length &&
-      this.known.some(v => differenceCiede2000(v, hsl.formatted) < ACTUAL_DISTANCE)
+      this.known.some(
+        (v) => differenceCiede2000(v, hsl.formatted) < ACTUAL_DISTANCE
+      )
     ) {
       return this.getColor(count + 1);
     } else {
@@ -53,14 +55,15 @@ export default class toColor {
     }
   }
 
+  _clamp = (n, min, max) => (n <= min ? min : n >= max ? max : n);
+
   _colorWithModifiers = (h, s, l) => {
-    const clamp = (n, min, max) => (n <= min ? min : n >= max ? max : n);
     const percentage = (n, per) => (n / 100) * per * 100;
     const { brightness, saturation } = this.options;
 
     // Modify brightness/saturation if provided
-    s = saturation ? clamp(percentage(saturation, s), 0, 100) : s;
-    l = brightness ? clamp(percentage(brightness, l), 0, 100) : l;
+    s = saturation ? this._clamp(percentage(saturation, s), 0, 100) : s;
+    l = brightness ? this._clamp(percentage(brightness, l), 0, 100) : l;
 
     return this._HSLuvify(h, s, l);
   };
@@ -75,13 +78,17 @@ export default class toColor {
     const c = color(conv.hex);
     const raw = hsl(c);
 
+    // Convert and round
+    const hRounded = Math.round(this._clamp(raw.h, 0, 360));
+    const sRounded = Math.round(this._clamp(raw.s * 100, 0, 100));
+    const lRounded = Math.round(this._clamp(raw.l * 100, 0, 100));
+
     return {
-      hex: conv.hex,
       hsl: {
-        raw: [raw.h, raw.s, raw.l],
-        formatted: c.formatHsl()
+        raw: [hRounded, sRounded, lRounded],
+        formatted: `hsl(${hRounded}, ${sRounded}%, ${lRounded}%)`
       }
-    }
+    };
   };
 
   _pickHue = () => {

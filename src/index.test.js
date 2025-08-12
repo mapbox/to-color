@@ -6,7 +6,9 @@ describe('toColor', () => {
       try {
         new toColor([]);
       } catch (err) {
-        expect(err).toEqual(new TypeError('Seed value must be a number or string'));
+        expect(err).toEqual(
+          new TypeError('Seed value must be a number or string')
+        );
       }
     });
   });
@@ -17,8 +19,8 @@ describe('toColor', () => {
     it('returns deterministic color on getColor', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(68, 83.64%, 57.19%)',
-          raw: [68, 83.64, 57.19]
+          formatted: 'hsl(47, 57%, 52%)',
+          raw: [47, 57, 52]
         }
       });
     });
@@ -26,8 +28,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(326, 63.41%, 53.53%)',
-          raw: [326, 63.41, 53.53]
+          formatted: 'hsl(315, 62%, 38%)',
+          raw: [315, 62, 38]
         }
       });
     });
@@ -38,8 +40,8 @@ describe('toColor', () => {
     it('works with a number', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(148, 62.77%, 67.76%)',
-          raw: [148, 62.77, 67.76]
+          formatted: 'hsl(152, 35%, 29%)',
+          raw: [152, 35, 29]
         }
       });
     });
@@ -51,8 +53,8 @@ describe('toColor', () => {
     it('returns deterministic color on getColor', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(107, 13.63%, 43.12%)',
-          raw: [107, 13.63, 43.12]
+          formatted: 'hsl(87, 14%, 31%)',
+          raw: [87, 14, 31]
         }
       });
     });
@@ -60,8 +62,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(347, 17.64%, 34.85%)',
-          raw: [347, 17.64, 34.85]
+          formatted: 'hsl(337, 32%, 24%)',
+          raw: [337, 32, 24]
         }
       });
     });
@@ -72,8 +74,8 @@ describe('toColor', () => {
       const color = new toColor('hi');
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(195, 72.41%, 46.98%)',
-          raw: [195, 72.41, 46.98]
+          formatted: 'hsl(181, 58%, 44%)',
+          raw: [181, 58, 44]
         }
       });
     });
@@ -82,8 +84,8 @@ describe('toColor', () => {
       const color = new toColor('hi', { limit: ['blue'] });
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(292, 68.83%, 58.28%)',
-          raw: [292, 68.83, 58.28]
+          formatted: 'hsl(285, 62%, 52%)',
+          raw: [285, 62, 52]
         }
       });
     });
@@ -99,8 +101,8 @@ describe('toColor', () => {
       }
       expect(finalValue).toEqual({
         hsl: {
-          formatted: 'hsl(7, 61.34%, 61.2%)',
-          raw: [7, 61.34, 61.2]
+          formatted: 'hsl(91, 84%, 33%)',
+          raw: [91, 84, 33]
         }
       });
     });
