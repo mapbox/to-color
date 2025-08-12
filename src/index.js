@@ -1,4 +1,6 @@
 import { differenceCiede2000 } from './d3-color-difference';
+import { color, hsl } from 'd3-color';
+import { Hsluv } from 'hsluv';
 
 export default class toColor {
   HUE_MAX = 360;
@@ -27,9 +29,9 @@ export default class toColor {
   getColor(count = 0) {
     const h = this._pickHue();
     const s = this._pickSaturation(h);
-    const b = this._pickBrightness(h, s);
-    const hsl = this._HSVtoHSL(h, s, b);
-    const formatted = this._formatHSL(hsl);
+    const l = this._pickLightness(h, s);
+
+    const { hsl } = this._HSLuvify(h, s, l);
     const PASSABLE_DISTANCE = 60;
 
     // The larger `count` grows, we need to divide actual distance to avoid
@@ -40,41 +42,47 @@ export default class toColor {
     // getColor until enough dissimilarity is achieved.
     if (
       this.known.length &&
-      this.known.some(
-        (v) => differenceCiede2000(v, formatted) < ACTUAL_DISTANCE
-      )
+      this.known.some(v => differenceCiede2000(v, hsl.formatted) < ACTUAL_DISTANCE)
     ) {
-      count++;
-      return this.getColor(count);
+      return this.getColor(count + 1);
     } else {
-      this.known.push(formatted);
+      this.known.push(hsl.formatted);
       // Apply modifiers after distribution check + regeneration to ensure
       // colors with brightness/saturation adjustments remain the same.
-      return this._colorWithModifiers(h, s, b);
+      return this._colorWithModifiers(h, s, l);
     }
   }
 
-  _colorWithModifiers = (h, s, b) => {
+  _colorWithModifiers = (h, s, l) => {
     const clamp = (n, min, max) => (n <= min ? min : n >= max ? max : n);
     const percentage = (n, per) => (n / 100) * per * 100;
     const { brightness, saturation } = this.options;
 
     // Modify brightness/saturation if provided
     s = saturation ? clamp(percentage(saturation, s), 0, 100) : s;
-    b = brightness ? clamp(percentage(brightness, b), 0, 100) : b;
+    l = brightness ? clamp(percentage(brightness, l), 0, 100) : l;
 
-    // re-run conversion accounting for post modifications to s and b.
-    const hsl = this._HSVtoHSL(h, s, b);
-
-    return {
-      hsl: {
-        raw: hsl,
-        formatted: this._formatHSL(hsl)
-      }
-    };
+    return this._HSLuvify(h, s, l);
   };
 
-  _formatHSL = (hsl) => `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
+  _HSLuvify = (h, s, l) => {
+    const conv = new Hsluv();
+    conv.hsluv_h = h;
+    conv.hsluv_s = s;
+    conv.hsluv_l = l;
+    conv.hsluvToHex();
+
+    const c = color(conv.hex);
+    const raw = hsl(c);
+
+    return {
+      hex: conv.hex,
+      hsl: {
+        raw: [raw.h, raw.s, raw.l],
+        formatted: c.formatHsl()
+      }
+    }
+  };
 
   _pickHue = () => {
     let hue = this._pseudoRandom([0, this.HUE_MAX]);
@@ -102,33 +110,14 @@ export default class toColor {
     return hue;
   };
 
-  _pickSaturation = (h) => {
-    const saturationRange = this._getColorInfo(h)[2];
-    const min = saturationRange[0];
-    const max = saturationRange[1];
-    return this._pseudoRandom([min, max]);
+  _pickSaturation = () => {
+    // HSLuv saturation can be high without RGB clipping, so keep near upper range
+    return this._pseudoRandom([60, 100]);
   };
 
-  _pickBrightness = (h, s) => {
-    const min = this._getMinimumBrightness(h, s);
-    const max = 100;
-    return this._pseudoRandom([min, max]);
-  };
-
-  _getMinimumBrightness = (h, s) => {
-    const lowerBounds = this._getColorInfo(h)[1];
-    for (let i = 0; i < lowerBounds.length - 1; i++) {
-      const s1 = lowerBounds[i][0];
-      const v1 = lowerBounds[i][1];
-      const s2 = lowerBounds[i + 1][0];
-      const v2 = lowerBounds[i + 1][1];
-      if (s >= s1 && s <= s2) {
-        const m = (v2 - v1) / (s2 - s1);
-        const b = v1 - m * s1;
-        return m * s + b;
-      }
-    }
-    return 0;
+  _pickLightness = () => {
+    // Avoid extremes for better contrast
+    return this._pseudoRandom([35, 80]);
   };
 
   // A linear congruential generator (LCG) algorithm that yields a sequence of
@@ -142,26 +131,6 @@ export default class toColor {
     return Math.trunc(min + rnd * (max - min));
   };
 
-  _getColorInfo = (hue) => {
-    // Red is on both ends of the color spectrum. Map them together:
-    if (hue >= 334 && hue <= this.HUE_MAX) {
-      hue -= this.HUE_MAX;
-    }
-
-    return this._colorDictionary.find((c) => hue >= c[0][0] && hue <= c[0][1]);
-  };
-
-  _HSVtoHSL = (h, s, v) => {
-    const round = (num) => Math.trunc((num + Number.EPSILON) * 100) / 100;
-    const l = ((2 - s / 100) * v) / 2;
-    let saturation = (s * v) / (l < 50 ? l * 2 : 200 - l * 2);
-
-    // Handle division-by-zero
-    if (isNaN(saturation)) saturation = 0;
-
-    return [h, round(saturation), round(l)];
-  };
-
   _stringToInteger = (string) => {
     let total = 0;
     for (let i = 0; i !== string.length; i++) {
@@ -170,48 +139,4 @@ export default class toColor {
     }
     return total;
   };
-
-  // Color dictionary is a collection of subjective values, each containing:
-  //  - Hue range for a given color
-  //  - An array of min/max ranges representing appropriate brightness bounds.
-  //  - A min/max saturation range a hue should stay within.
-
-  // prettier-ignore
-  _colorDictionary = [
-    [
-      this.hues.red,
-      [[20, 100], [30, 92], [40, 89], [50, 85], [60, 78], [70, 70], [80, 60], [90, 55], [100, 50]],
-      [20, 100]
-    ],
-    [
-      this.hues.orange,
-      [[20, 100], [30, 93], [40, 88], [50, 86], [60, 85], [70, 70], [100, 70]],
-      [20, 100]
-    ],
-    [
-      this.hues.yellow,
-      [[25, 100], [40, 94], [50, 89], [60, 86], [70, 84], [80, 82], [90, 80], [100, 75]],
-      [25, 100]
-    ],
-    [
-      this.hues.green,
-      [[30, 100], [40, 90], [50, 85], [60, 81], [70, 74], [80, 64], [90, 50], [100, 40]],
-      [30, 100]
-    ],
-    [
-      this.hues.blue,
-      [[20, 100], [30, 86], [40, 80], [50, 74], [60, 60], [70, 52], [80, 44], [90, 39], [100, 35]],
-      [20, 100]
-    ],
-    [
-      this.hues.purple,
-      [[20, 100], [30, 87], [40, 79], [50, 70], [60, 65], [70, 59], [80, 52], [90, 45], [100, 42]],
-      [20, 100]
-    ],
-    [
-      this.hues.pink,
-      [[20, 100], [30, 90], [40, 86], [60, 84], [80, 80], [90, 75], [100, 73]],
-      [20, 100]
-    ]
-  ];
 }

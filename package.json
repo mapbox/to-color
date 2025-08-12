@@ -70,6 +70,7 @@
     "url": "git@github.com:mapbox/to-color.git"
   },
   "dependencies": {
-    "d3-color": "^3.1.0"
+    "d3-color": "^3.1.0",
+    "hsluv": "^1.0.1"
   }
 }
