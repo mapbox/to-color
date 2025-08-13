@@ -28,7 +28,7 @@ export default class toColor {
 
   getColor(count = 0) {
     const h = this._pickHue();
-    const s = this._pickSaturation(h);
+    const s = this._pickSaturation();
     const l = this._pickLightness();
 
     const { hsl } = this._HSLuvify(h, s, l);
