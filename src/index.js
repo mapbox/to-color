@@ -29,7 +29,7 @@ export default class toColor {
   getColor(count = 0) {
     const h = this._pickHue();
     const s = this._pickSaturation(h);
-    const l = this._pickLightness(h, s);
+    const l = this._pickLightness();
 
     const { hsl } = this._HSLuvify(h, s, l);
     const PASSABLE_DISTANCE = 60;
