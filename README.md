@@ -1,9 +1,7 @@
 `@mapbox/to-color`
 ===
 
-Procedurally generate a deterministic, perceptually distributed color palette.
-
-[![Build Status](https://travis-ci.org/mapbox/to-color.svg)](https://travis-ci.org/mapbox/to-color)
+Procedurally generate a deterministic, perceptually distributed color palette. Uses [HSLuv](https://www.hsluv.org/) internally for a uniform saturation between palattes.  
 
 ### install
 
@@ -23,27 +21,10 @@ const color = new toColor('tmcw');
 // Or with options
 // const color = new toColor('tmcw', { brightness: 0.25, saturation: 1.1 });
 
-const { hsl } = color.getColor();
+color.getColor();
 
-/*
-Returns
-
-{
-  raw: [314, 97.95, 50.98],
-  formatted: 'hsl(314, 97.95%, 50.98%)'
-}
-*/
-
-const { hsl } = color.getColor();
-
-/*
-Returns
-
-{
-  raw: [2, 78.26, 54],
-  formatted: 'hsl(2, 78.26%, 54%)'
-}
-*/
+// Multiple calls return a new deterministic random color
+color.getColor();
 ```
 
 ### Options
