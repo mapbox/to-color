@@ -18,41 +18,101 @@ export default class toColor {
   constructor(seed, options) {
     this.options = options || {};
     if (typeof seed === 'string' || typeof seed === 'number') {
-      this.seed = typeof seed === 'string' ? this._stringToInteger(seed) : seed;
+      this.rootSeed =
+        typeof seed === 'string' ? this._stringToInteger(seed) : seed;
     } else {
       throw new TypeError('Seed value must be a number or string');
     }
 
+    this.seed = this.rootSeed;
     this.known = [];
+    this.cache = new Map();
   }
 
-  getColor(count = 0) {
+  getColor(key, count = 0) {
+    if (typeof key === 'string') {
+      if (this.cache.has(key)) return this.cache.get(key);
+
+      const color = this._getDeterministicColor(key);
+      this.cache.set(key, color);
+      return color;
+    }
+
+    return this._getSequentialColor(count);
+  }
+
+  _getDeterministicColor(key) {
+    const PASSABLE_DISTANCE = this.options.minDistance || 60;
+    const MAX_ATTEMPTS = 50;
+
+    let bestCandidate = null;
+    let bestDistance = -Infinity;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const combined = this._stringToInteger(`${this.rootSeed}:${key}:${attempt}`);
+
+      const h = this._mapIndexToHue(combined);
+      const s = this._mapIndexToRange(combined, 60, 100);
+      const l = this._mapIndexToRange(combined >> 3, 35, 80);
+
+      const candidate = this._colorWithModifiers(h, s, l);
+      const formatted = candidate.hsl.formatted;
+
+      if (this.cache.size === 0) {
+        return candidate; // first one is always fine
+      }
+
+      // compute min distance to all cached colors
+      const minDist = Math.min(
+        ...[...this.cache.values()].map((v) =>
+          differenceCiede2000(v.hsl.formatted, formatted)
+        )
+      );
+
+      if (minDist >= PASSABLE_DISTANCE) {
+        return candidate; // good enough → return immediately
+      }
+
+      // track best so far in case we give up
+      if (minDist > bestDistance) {
+        bestDistance = minDist;
+        bestCandidate = candidate;
+      }
+    }
+
+    // fallback: return the best we could find, even if too close
+    return bestCandidate;
+  }
+
+  _getSequentialColor(count = 0) {
     const h = this._pickHue();
     const s = this._pickSaturation();
     const l = this._pickLightness();
 
     const { hsl } = this._HSLuvify(h, s, l);
     const PASSABLE_DISTANCE = 60;
-
-    // The larger `count` grows, we need to divide actual distance to avoid
-    // hitting a maxiumum call stack error.
     const ACTUAL_DISTANCE = PASSABLE_DISTANCE / Math.pow(1.05, count);
 
-    // Detect color similarity. If values are too close to one another, call
-    // getColor until enough dissimilarity is achieved.
     if (
       this.known.length &&
       this.known.some(
         (v) => differenceCiede2000(v, hsl.formatted) < ACTUAL_DISTANCE
       )
     ) {
-      return this.getColor(count + 1);
+      return this._getSequentialColor(count + 1);
     } else {
       this.known.push(hsl.formatted);
-      // Apply modifiers after distribution check + regeneration to ensure
-      // colors with brightness/saturation adjustments remain the same.
       return this._colorWithModifiers(h, s, l);
     }
+  }
+
+  _mapIndexToHue(index) {
+    const golden = 0.61803398875;
+    return Math.round(((index * golden) % 1) * this.HUE_MAX);
+  }
+
+  _mapIndexToRange(index, min, max) {
+    return min + (index % (max - min));
   }
 
   _clamp = (n, min, max) => (n <= min ? min : n >= max ? max : n);
