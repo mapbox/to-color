@@ -29,7 +29,7 @@ export default class toColor {
     this.cache = new Map();
   }
 
-  getColor(key, count = 0) {
+  getColor(key) {
     if (typeof key === 'string') {
       if (this.cache.has(key)) return this.cache.get(key);
 
@@ -38,50 +38,17 @@ export default class toColor {
       return color;
     }
 
-    return this._getSequentialColor(count);
+    return this._getSequentialColor();
   }
 
   _getDeterministicColor(key) {
-    const PASSABLE_DISTANCE = this.options.minDistance || 60;
-    const MAX_ATTEMPTS = 50;
+    const combined = this._stringToInteger(`${this.rootSeed}:${key}`);
 
-    let bestCandidate = null;
-    let bestDistance = -Infinity;
+    const h = this._mapIndexToHue(combined);
+    const s = this._mapIndexToRange(combined >> 2, 60, 100);
+    const l = this._mapIndexToRange(combined >> 3, 35, 80);
 
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      const combined = this._stringToInteger(`${this.rootSeed}:${key}:${attempt}`);
-
-      const h = this._mapIndexToHue(combined);
-      const s = this._mapIndexToRange(combined, 60, 100);
-      const l = this._mapIndexToRange(combined >> 3, 35, 80);
-
-      const candidate = this._colorWithModifiers(h, s, l);
-      const formatted = candidate.hsl.formatted;
-
-      if (this.cache.size === 0) {
-        return candidate; // first one is always fine
-      }
-
-      // compute min distance to all cached colors
-      const minDist = Math.min(
-        ...[...this.cache.values()].map((v) =>
-          differenceCiede2000(v.hsl.formatted, formatted)
-        )
-      );
-
-      if (minDist >= PASSABLE_DISTANCE) {
-        return candidate; // good enough → return immediately
-      }
-
-      // track best so far in case we give up
-      if (minDist > bestDistance) {
-        bestDistance = minDist;
-        bestCandidate = candidate;
-      }
-    }
-
-    // fallback: return the best we could find, even if too close
-    return bestCandidate;
+    return this._colorWithModifiers(h, s, l);
   }
 
   _getSequentialColor(count = 0) {
@@ -107,6 +74,9 @@ export default class toColor {
   }
 
   _mapIndexToHue(index) {
+    // A hybrid approach to color distance checking in _getSequentialColor but
+    // for `_getDeterministicColor`. Attempts to “spread” hash values evenly to
+    // reduce the same hues appearing next to one another.
     const golden = 0.61803398875;
     return Math.round(((index * golden) % 1) * this.HUE_MAX);
   }

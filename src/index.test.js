@@ -122,6 +122,19 @@ describe('toColor', () => {
       expect(ba.hsl.formatted).not.toEqual(bb.hsl.formatted);
       expect(ba.hsl.formatted).toEqual(bc.hsl.formatted);
     });
+
+    it('determinisic regardless of order', () => {
+      const colorA = new toColor('dance');
+      const colorB = new toColor('dance');
+
+      const aa = colorA.getColor('jazz'); // Defined first
+      colorA.getColor('fusion');
+
+      const bb = colorB.getColor('fusion');
+      colorB.getColor('jazz'); // Defined last
+
+      expect(aa.hsl.formatted).toEqual(bb.hsl.formatted);
+    });
   });
 
   describe('distribution drops as recursion of getColor increases', () => {
