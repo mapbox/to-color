@@ -91,6 +91,52 @@ describe('toColor', () => {
     });
   });
 
+  describe('getColor seeding', () => {
+    it('returns the same color regardless of order', () => {
+      const color = new toColor('genres');
+
+      const a = color.getColor('jazz');
+      const b = color.getColor('fusion');
+      const c = color.getColor('jazz');
+
+      expect(a.hsl.formatted).toEqual(c.hsl.formatted);
+      expect(a.hsl.formatted).not.toEqual(b.hsl.formatted);
+    });
+
+    it('works with root seeding being different', () => {
+      const colorA = new toColor('genres');
+      const colorB = new toColor('dance');
+
+      const aa = colorA.getColor('jazz');
+      const ab = colorA.getColor('fusion');
+      const ac = colorA.getColor('jazz');
+
+      const ba = colorB.getColor('jazz');
+      const bb = colorB.getColor('fusion');
+      const bc = colorB.getColor('jazz');
+
+      expect(aa.hsl.formatted).toEqual(ac.hsl.formatted);
+      expect(aa.hsl.formatted).not.toEqual(ab.hsl.formatted);
+
+      expect(aa.hsl.formatted).not.toEqual(ba.hsl.formatted);
+      expect(ba.hsl.formatted).not.toEqual(bb.hsl.formatted);
+      expect(ba.hsl.formatted).toEqual(bc.hsl.formatted);
+    });
+
+    it('determinisic regardless of order', () => {
+      const colorA = new toColor('dance');
+      const colorB = new toColor('dance');
+
+      const aa = colorA.getColor('jazz'); // Defined first
+      colorA.getColor('fusion');
+
+      colorB.getColor('fusion');
+      const bb = colorB.getColor('jazz'); // Defined last
+
+      expect(aa.hsl.formatted).toEqual(bb.hsl.formatted);
+    });
+  });
+
   describe('distribution drops as recursion of getColor increases', () => {
     const color = new toColor('tristen');
 

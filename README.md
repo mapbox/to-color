@@ -27,6 +27,19 @@ color.getColor();
 color.getColor();
 ```
 
+`getColor` can optionally take a seed to guarantee the same random color regardless of order.
+
+```js
+import toColor from '@mapbox/to-color'
+
+const color = new toColor('trees');
+
+color.getColor('cedar'); // Returns a random color based on `trees`
+color.getColor('birch'); 
+color.getColor('cedar'); // Returns the same color for cedar
+color.getColor('spruce');
+```
+
 ### Options
 
 | Option | Value | Default | Description |

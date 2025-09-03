@@ -18,41 +18,71 @@ export default class toColor {
   constructor(seed, options) {
     this.options = options || {};
     if (typeof seed === 'string' || typeof seed === 'number') {
-      this.seed = typeof seed === 'string' ? this._stringToInteger(seed) : seed;
+      this.rootSeed =
+        typeof seed === 'string' ? this._stringToInteger(seed) : seed;
     } else {
       throw new TypeError('Seed value must be a number or string');
     }
 
+    this.seed = this.rootSeed;
     this.known = [];
+    this.cache = new Map();
   }
 
-  getColor(count = 0) {
+  getColor(key) {
+    if (typeof key === 'string') {
+      if (this.cache.has(key)) return this.cache.get(key);
+
+      const color = this._getDeterministicColor(key);
+      this.cache.set(key, color);
+      return color;
+    }
+
+    return this._getSequentialColor();
+  }
+
+  _getDeterministicColor(key) {
+    const combined = this._stringToInteger(`${this.rootSeed}:${key}`);
+
+    const h = this._mapIndexToHue(combined);
+    const s = this._mapIndexToRange(combined >> 2, 60, 100);
+    const l = this._mapIndexToRange(combined >> 3, 35, 80);
+
+    return this._colorWithModifiers(h, s, l);
+  }
+
+  _getSequentialColor(count = 0) {
     const h = this._pickHue();
     const s = this._pickSaturation();
     const l = this._pickLightness();
 
     const { hsl } = this._HSLuvify(h, s, l);
     const PASSABLE_DISTANCE = 60;
-
-    // The larger `count` grows, we need to divide actual distance to avoid
-    // hitting a maxiumum call stack error.
     const ACTUAL_DISTANCE = PASSABLE_DISTANCE / Math.pow(1.05, count);
 
-    // Detect color similarity. If values are too close to one another, call
-    // getColor until enough dissimilarity is achieved.
     if (
       this.known.length &&
       this.known.some(
         (v) => differenceCiede2000(v, hsl.formatted) < ACTUAL_DISTANCE
       )
     ) {
-      return this.getColor(count + 1);
+      return this._getSequentialColor(count + 1);
     } else {
       this.known.push(hsl.formatted);
-      // Apply modifiers after distribution check + regeneration to ensure
-      // colors with brightness/saturation adjustments remain the same.
       return this._colorWithModifiers(h, s, l);
     }
+  }
+
+  _mapIndexToHue(index) {
+    // A hybrid approach to color distance checking in _getSequentialColor but
+    // for `_getDeterministicColor`. Attempts to “spread” hash values evenly to
+    // reduce the same hues appearing next to one another.
+    const GOLDEN_RATIO_CONJUGATE = (Math.sqrt(5) - 1) / 2; // ≈ 0.61803398875
+    return Math.round(((index * GOLDEN_RATIO_CONJUGATE) % 1) * this.HUE_MAX);
+  }
+
+  _mapIndexToRange(index, min, max) {
+    return min + (index % (max - min));
   }
 
   _clamp = (n, min, max) => (n <= min ? min : n >= max ? max : n);
