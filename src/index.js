@@ -77,8 +77,8 @@ export default class toColor {
     // A hybrid approach to color distance checking in _getSequentialColor but
     // for `_getDeterministicColor`. Attempts to “spread” hash values evenly to
     // reduce the same hues appearing next to one another.
-    const golden = 0.61803398875;
-    return Math.round(((index * golden) % 1) * this.HUE_MAX);
+    const GOLDEN_RATIO_CONJUGATE = (Math.sqrt(5) - 1) / 2; // ≈ 0.61803398875
+    return Math.round(((index * GOLDEN_RATIO_CONJUGATE) % 1) * this.HUE_MAX);
   }
 
   _mapIndexToRange(index, min, max) {

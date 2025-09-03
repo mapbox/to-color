@@ -130,8 +130,8 @@ describe('toColor', () => {
       const aa = colorA.getColor('jazz'); // Defined first
       colorA.getColor('fusion');
 
-      const bb = colorB.getColor('fusion');
-      colorB.getColor('jazz'); // Defined last
+      colorB.getColor('fusion');
+      const bb = colorB.getColor('jazz'); // Defined last
 
       expect(aa.hsl.formatted).toEqual(bb.hsl.formatted);
     });
