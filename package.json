@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/to-color",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Procedurally generate a deterministic, perceptually distributed color palette.",
   "main": "dist/to-color.js",
   "scripts": {
@@ -71,5 +71,8 @@
   "dependencies": {
     "d3-color": "^3.1.0",
     "hsluv": "^1.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
