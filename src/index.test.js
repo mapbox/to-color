@@ -89,6 +89,16 @@ describe('toColor', () => {
         }
       });
     });
+
+    it('never renders a limited hue', () => {
+      ['hi', 'mapbox.mapbox-streets-v8'].forEach((seed) => {
+        const color = new toColor(seed, { saturation: 1.25, limit: ['blue'] });
+        for (let i = 0; i !== 100; i++) {
+          const [h] = color.getColor().hsl.raw;
+          expect(h > 180 && h < 255).toBe(false);
+        }
+      });
+    });
   });
 
   describe('getColor seeding', () => {
