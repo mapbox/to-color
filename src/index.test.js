@@ -48,13 +48,13 @@ describe('toColor', () => {
   });
 
   describe('brightness/saturation', () => {
-    const color = new toColor('penny', { brightness: 0.5, saturation: 0.5 });
+    const color = new toColor('penny', { brightness: 1.5, saturation: 0.5 });
 
     it('returns deterministic color on getColor', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(87, 14%, 31%)',
-          raw: [87, 14, 31]
+          formatted: 'hsl(0, 0%, 100%)',
+          raw: [0, 0, 100]
         }
       });
     });
@@ -62,8 +62,8 @@ describe('toColor', () => {
     it('returns a different determinisic value calling getColor again', () => {
       expect(color.getColor()).toEqual({
         hsl: {
-          formatted: 'hsl(337, 32%, 24%)',
-          raw: [337, 32, 24]
+          formatted: 'hsl(338, 37%, 69%)',
+          raw: [338, 37, 69]
         }
       });
     });

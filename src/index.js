@@ -109,8 +109,8 @@ export default class toColor {
     const raw = hsl(c);
 
     // Convert and round
-    const hRounded = Math.round(this._clamp(raw.h, 0, 360));
-    const sRounded = Math.round(this._clamp(raw.s * 100, 0, 100));
+    const hRounded = Math.round(this._clamp(raw.h || 0, 0, 360));
+    const sRounded = Math.round(this._clamp((raw.s || 0) * 100, 0, 100));
     const lRounded = Math.round(this._clamp(raw.l * 100, 0, 100));
 
     return {
