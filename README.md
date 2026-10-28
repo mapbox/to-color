@@ -69,13 +69,13 @@ Examples:
 
 The workflow publishes via [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC), so no npm token is needed. This requires an npm org admin to configure a trusted publisher for `@mapbox/to-color` (GitHub Actions, workflow `npm-release.yml`, environment `npm-release`), and the `npm-release` GitHub Environment to exist in this repository. After publishing, the workflow creates a [GitHub Release](https://github.com/mapbox/to-color/releases) with generated notes and comments the released version on the merged PRs.
 
-Every push to `main` also deploys the demo site, including changes that don't release a new version: first to labs staging, then to https://labs.mapbox.com/to-color/. A manual run of the workflow on another branch publishes a prerelease and deploys the demo to labs staging only.
+Each release also deploys the demo site to GitHub Pages at https://mapbox.github.io/to-color/ (the `gh-pages` branch), so it always matches the latest published version. Prereleases don't deploy it.
 
 `package.json`'s `version` may be incremented manually if needed (for example, to skip a minor version), but you shouldn't normally need to touch it; the published npm version, not `package.json`, is the source of truth for what gets released next.
 
 #### Pre-release versions on other branches
 
-For testing in downstream projects, you can manually trigger the "NPM release" workflow on a branch to publish a pre-release tagged with the short commit sha (e.g. `2.3.0-aa79c6a`) under the npm `prerelease` dist-tag, without affecting `latest`. Check the workflow results for the published version.
+For testing in downstream projects, you can manually trigger the "NPM release" workflow on a branch to publish a pre-release tagged with the short commit sha (e.g. `2.3.1-aa79c6a` when `2.3.0` is the latest release) under the npm `prerelease` dist-tag, without affecting `latest`. Check the workflow results for the published version.
 
 ---
 
