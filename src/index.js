@@ -5,14 +5,16 @@ import { Hsluv } from 'hsluv';
 export default class toColor {
   HUE_MAX = 360;
 
+  // HSLuv hue ranges. Each covers the full saturation/lightness spread of
+  // its color so neighbors overlap. Red wraps around 0, so it starts negative.
   hues = {
-    red: [-26, 18],
-    orange: [18, 46],
-    yellow: [46, 62],
-    green: [62, 178],
-    blue: [178, 257],
-    purple: [257, 282],
-    pink: [282, 334]
+    red: [-20, 34],
+    orange: [18, 71],
+    yellow: [59, 89],
+    green: [86, 190],
+    blue: [185, 277],
+    purple: [268, 295],
+    pink: [285, 360]
   };
 
   constructor(seed, options) {
@@ -109,8 +111,8 @@ export default class toColor {
     const raw = hsl(c);
 
     // Convert and round
-    const hRounded = Math.round(this._clamp(raw.h, 0, 360));
-    const sRounded = Math.round(this._clamp(raw.s * 100, 0, 100));
+    const hRounded = Math.round(this._clamp(raw.h || 0, 0, 360));
+    const sRounded = Math.round(this._clamp((raw.s || 0) * 100, 0, 100));
     const lRounded = Math.round(this._clamp(raw.l * 100, 0, 100));
 
     return {
@@ -128,17 +130,18 @@ export default class toColor {
 
     hue = this._pseudoRandom([min, max]);
 
-    // Red is on both ends of the color spectrum. Instead of storing red as two
-    // ranges, lookup is grouped in `this.hue` as negative numbers.
-    if (hue < 0) hue = this.HUE_MAX + hue;
-
     // Limit the max of some hues if the option is passed.
     const { limit } = this.options;
 
     if (limit && limit.length) {
       for (let i = 0; i !== limit.length; i++) {
         const hueRange = this.hues?.[limit[i]];
-        if (hueRange && hue > hueRange[0] && hue <= hueRange[1]) {
+        if (
+          hueRange &&
+          [hue, hue - this.HUE_MAX].some(
+            (h) => h > hueRange[0] && h <= hueRange[1]
+          )
+        ) {
           return this._pickHue();
         }
       }
