@@ -902,14 +902,16 @@
       var _this = this;
       _classCallCheck(this, toColor);
       _defineProperty(this, "HUE_MAX", 360);
+      // HSLuv hue ranges. Each covers the full saturation/lightness spread of
+      // its color so neighbors overlap. Red wraps around 0, so it starts negative.
       _defineProperty(this, "hues", {
-        red: [-26, 18],
-        orange: [18, 46],
-        yellow: [46, 62],
-        green: [62, 178],
-        blue: [178, 257],
-        purple: [257, 282],
-        pink: [282, 334]
+        red: [-20, 34],
+        orange: [18, 71],
+        yellow: [59, 89],
+        green: [86, 190],
+        blue: [185, 277],
+        purple: [268, 295],
+        pink: [285, 360]
       });
       _defineProperty(this, "_clamp", function (n, min, max) {
         return n <= min ? min : n >= max ? max : n;
@@ -937,8 +939,8 @@
         var raw = hsl(c);
 
         // Convert and round
-        var hRounded = Math.round(_this._clamp(raw.h, 0, 360));
-        var sRounded = Math.round(_this._clamp(raw.s * 100, 0, 100));
+        var hRounded = Math.round(_this._clamp(raw.h || 0, 0, 360));
+        var sRounded = Math.round(_this._clamp((raw.s || 0) * 100, 0, 100));
         var lRounded = Math.round(_this._clamp(raw.l * 100, 0, 100));
         return {
           hsl: {
@@ -953,19 +955,24 @@
         var max = (hue + 1) % _this.HUE_MAX;
         hue = _this._pseudoRandom([min, max]);
 
-        // Red is on both ends of the color spectrum. Instead of storing red as two
-        // ranges, lookup is grouped in `this.hue` as negative numbers.
-        if (hue < 0) hue = _this.HUE_MAX + hue;
-
         // Limit the max of some hues if the option is passed.
         var limit = _this.options.limit;
         if (limit && limit.length) {
+          var _loop = function _loop() {
+              var _this$hues;
+              var hueRange = (_this$hues = _this.hues) === null || _this$hues === void 0 ? void 0 : _this$hues[limit[i]];
+              if (hueRange && [hue, hue - _this.HUE_MAX].some(function (h) {
+                return h > hueRange[0] && h <= hueRange[1];
+              })) {
+                return {
+                  v: _this._pickHue()
+                };
+              }
+            },
+            _ret;
           for (var i = 0; i !== limit.length; i++) {
-            var _this$hues;
-            var hueRange = (_this$hues = _this.hues) === null || _this$hues === void 0 ? void 0 : _this$hues[limit[i]];
-            if (hueRange && hue > hueRange[0] && hue <= hueRange[1]) {
-              return _this._pickHue();
-            }
+            _ret = _loop();
+            if (_ret) return _ret.v;
           }
         }
         return hue;
