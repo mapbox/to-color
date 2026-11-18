@@ -58,6 +58,18 @@ npm install & npm start
 npm run test
 ```
 
+### Publishing
+
+Pull Requests to `main` automatically publish a new version based on the PR's title prefix (`major:`, `minor:` or `patch:`) to the npmjs registry.
+
+Each release also deploys the demo site to GitHub Pages at https://mapbox.github.io/to-color/ (the `gh-pages` branch). Prereleases don't deploy it.
+
+The published version in the registry is the source of truth for the package version, but you can manually increment the `package.json`'s `version`.
+
+#### Pre-release versions on other branches
+
+For testing in downstream projects, you can manually trigger the "NPM release" workflow on a branch to publish a pre-release tagged with the short commit sha (e.g. `2.3.1-aa79c6a` when `2.3.0` is the latest release) under the npm `prerelease` dist-tag, without affecting `latest`. Check the workflow results for the published version.
+
 ---
 
 **Credit** v2 is adapted from [randomColor](https://github.com/davidmerfield/randomColor).
