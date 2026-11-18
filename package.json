@@ -11,7 +11,7 @@
     "start": "run-p start:server watch",
     "watch": "watch 'npm run compile' src",
     "compile": "rollup -c",
-    "build": "npm run compile && rm -rf _site && mkdir -p _site && cp -R demo/ _site/",
+    "build": "npm run compile && rm -rf _site && cp -R demo _site",
     "test": "eslint src && jest",
     "jest-watch": "jest --watch",
     "prepare": "husky",
